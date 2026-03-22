@@ -11,6 +11,7 @@
 
 - `packages/code-runtime-host-contract` still carries `HypeCode*` mission-control types plus `HugeCode*` compatibility aliases.
 - Downstream packages mix both names.
+  The active runtime RPC contract now uses `HugeCode*` internally, but the public export surface is still dual-named.
 
 ### 3. Client-side fallback surfaces are too broad
 

@@ -39,23 +39,28 @@ Collapse duplicated runtime-adjacent ownership into the canonical path while del
 - Migrated all remaining local consumers off `apps/code/src/services/runtimeClientTypes.ts`
 - Deleted `apps/code/src/services/runtimeClientTypes.ts`
 
+### Step 6. Host-contract internal canonical naming shift
+
+- Migrated `packages/code-runtime-host-contract/src/codeRuntimeRpc.ts` from direct `HypeCode*` mission-control imports to `HugeCode*` aliases
+- Kept the public compat surface stable while removing another active internal dependency on legacy names
+
 ## Next steps
 
-### Step 6. Collapse mission-control snapshot/projection fallback logic
+### Step 7. Collapse mission-control snapshot/projection fallback logic
 
 Target:
 
 - shared workspace shell reads kernel projection and runtime snapshot truth only
 - remove local projection fallback logic that reconstructs equivalent truth from older shapes
 
-### Step 7. Reduce Tauri bridge surface to host adaptation only
+### Step 8. Reduce Tauri bridge surface to host adaptation only
 
 Target:
 
 - remove runtime-domain normalization from Tauri adapters where canonical contract types already exist
 - keep only transport adaptation and platform-specific error mapping
 
-### Step 8. Shrink public compat surface
+### Step 9. Shrink public compat surface
 
 Target:
 

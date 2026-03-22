@@ -1,17 +1,17 @@
 import type {
-  HypeCodeCheckpointSummary,
-  HypeCodeMissionControlSnapshot,
-  HypeCodeMissionControlSummary,
-  HypeCodeMissionLinkageSummary,
-  HypeCodePublishHandoffReference,
-  HypeCodeReviewActionabilitySummary,
-  HypeCodeReviewPackSummary,
-  HypeCodePlacementLifecycleState,
-  HypeCodePlacementResolutionSource,
-  HypeCodeRunSummary,
-  HypeCodeTakeoverBundle,
-  HypeCodeTaskMode,
-} from "./hypeCodeMissionControl.js";
+  HugeCodeCheckpointSummary,
+  HugeCodeMissionControlSnapshot,
+  HugeCodeMissionControlSummary,
+  HugeCodeMissionLinkageSummary,
+  HugeCodePlacementLifecycleState,
+  HugeCodePlacementResolutionSource,
+  HugeCodePublishHandoffReference,
+  HugeCodeReviewActionabilitySummary,
+  HugeCodeReviewPackSummary,
+  HugeCodeRunSummary,
+  HugeCodeTakeoverBundle,
+  HugeCodeTaskMode,
+} from "./hugeCodeMissionControlCompat.js";
 
 export type ReasonEffort = "low" | "medium" | "high" | "xhigh";
 
@@ -150,7 +150,7 @@ export type TurnSendRequest = {
   modelId: string | null;
   reasonEffort: ReasonEffort | null;
   serviceTier?: string | null;
-  missionMode?: HypeCodeTaskMode | null;
+  missionMode?: HugeCodeTaskMode | null;
   executionProfileId?: string | null;
   preferredBackendIds?: string[] | null;
   accessMode: AccessMode;
@@ -586,8 +586,8 @@ export type AgentTaskRoutingSummary = {
   routeHint: string | null;
   health: AgentTaskRoutingHealth;
   backendOperability?: RuntimeBackendOperabilitySummary | null;
-  resolutionSource?: HypeCodePlacementResolutionSource | null;
-  lifecycleState?: HypeCodePlacementLifecycleState | null;
+  resolutionSource?: HugeCodePlacementResolutionSource | null;
+  lifecycleState?: HugeCodePlacementLifecycleState | null;
   enabledAccountCount: number;
   readyAccountCount: number;
   enabledPoolCount: number;
@@ -828,8 +828,8 @@ export type AgentTaskSummary = {
   parentTaskId?: string | null;
   childTaskIds?: string[];
   distributedStatus?: AgentTaskDistributedStatus | null;
-  runSummary?: HypeCodeRunSummary | null;
-  reviewPackSummary?: HypeCodeReviewPackSummary | null;
+  runSummary?: HugeCodeRunSummary | null;
+  reviewPackSummary?: HugeCodeReviewPackSummary | null;
   steps: AgentTaskStepSummary[];
 };
 
@@ -1368,8 +1368,8 @@ export type RuntimeRunSummary = AgentTaskSummary;
 
 export type RuntimeRunRecordV2 = {
   run: RuntimeRunSummary;
-  missionRun: HypeCodeRunSummary;
-  reviewPack: HypeCodeReviewPackSummary | null;
+  missionRun: HugeCodeRunSummary;
+  reviewPack: HugeCodeReviewPackSummary | null;
 };
 
 export type RuntimeRunStartV2Response = RuntimeRunRecordV2;
@@ -1382,7 +1382,7 @@ export type RuntimeRunResumeV2Response = RuntimeRunRecordV2;
 
 export type RuntimeRunInterventionV2Response = RuntimeRunRecordV2;
 
-export type RuntimeReviewGetV2Response = HypeCodeReviewPackSummary | null;
+export type RuntimeReviewGetV2Response = HugeCodeReviewPackSummary | null;
 
 export type RuntimeRunCancelAck = {
   accepted: boolean;
@@ -2873,11 +2873,11 @@ export type KernelContinuitySummary = {
 export type KernelContinuityItem = {
   taskId: string;
   runId: string;
-  checkpoint?: HypeCodeCheckpointSummary | null;
-  missionLinkage?: HypeCodeMissionLinkageSummary | null;
-  reviewActionability?: HypeCodeReviewActionabilitySummary | null;
-  publishHandoff?: HypeCodePublishHandoffReference | null;
-  takeoverBundle?: HypeCodeTakeoverBundle | null;
+  checkpoint?: HugeCodeCheckpointSummary | null;
+  missionLinkage?: HugeCodeMissionLinkageSummary | null;
+  reviewActionability?: HugeCodeReviewActionabilitySummary | null;
+  publishHandoff?: HugeCodePublishHandoffReference | null;
+  takeoverBundle?: HugeCodeTakeoverBundle | null;
 };
 
 export type KernelContinuitySlice = {
@@ -3713,7 +3713,7 @@ export type TurnSendRequestCompat = TurnSendRequest & {
   workspace_id?: string;
   thread_id?: string | null;
   request_id?: string;
-  mission_mode?: HypeCodeTaskMode | null;
+  mission_mode?: HugeCodeTaskMode | null;
   execution_profile_id?: string | null;
   preferred_backend_ids?: string[] | null;
   contextPrefix?: string | null;
@@ -4416,8 +4416,8 @@ export interface CodeRuntimeRpcResponsePayloadByMethod {
   [CODE_RUNTIME_RPC_METHODS.PROVIDERS_CATALOG]: RuntimeProviderCatalogEntry[];
   [CODE_RUNTIME_RPC_METHODS.WORKSPACES_LIST]: WorkspaceSummary[];
   [CODE_RUNTIME_RPC_METHODS.BOOTSTRAP_SNAPSHOT]: RuntimeBootstrapSnapshot;
-  [CODE_RUNTIME_RPC_METHODS.MISSION_CONTROL_SNAPSHOT_V1]: HypeCodeMissionControlSnapshot;
-  [CODE_RUNTIME_RPC_METHODS.MISSION_CONTROL_SUMMARY_V1]: HypeCodeMissionControlSummary;
+  [CODE_RUNTIME_RPC_METHODS.MISSION_CONTROL_SNAPSHOT_V1]: HugeCodeMissionControlSnapshot;
+  [CODE_RUNTIME_RPC_METHODS.MISSION_CONTROL_SUMMARY_V1]: HugeCodeMissionControlSummary;
   [CODE_RUNTIME_RPC_METHODS.RPC_BATCH]: RuntimeRpcBatchResponse;
   [CODE_RUNTIME_RPC_METHODS.WORKSPACE_PICK_DIRECTORY]: string | null;
   [CODE_RUNTIME_RPC_METHODS.WORKSPACE_CREATE]: WorkspaceSummary;
