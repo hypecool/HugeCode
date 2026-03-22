@@ -48,3 +48,15 @@ Path count reduced:
 - Deleted `packages/code-runtime-host-contract/src/hugeCodeMissionControlCompat.ts`
 - Renamed its surviving canonical `HugeCode*` exports into `packages/code-runtime-host-contract/src/hugeCodeMissionControl.ts`
 - Removed `HypeCode*` mission-control exports from the package root entrypoint
+
+### Step 8. Host-contract mission-control compat deletion
+
+- Deleted `packages/code-runtime-host-contract/src/hypeCodeMissionControl.ts`
+- Removed the `@ku0/code-runtime-host-contract/hypeCodeMissionControl` subpath export
+- Replaced alias-based `HugeCode*` mission-control definitions with canonical source definitions
+
+### Step 9. WebMCP schema-validation compat deletion
+
+- Deleted `packages/code-runtime-webmcp-client/src/webMcpInputSchemaValidationError.ts`
+- Removed the `@ku0/code-runtime-webmcp-client/webMcpInputSchemaValidationError` subpath export
+- Migrated the last active app consumer to `@ku0/code-runtime-client/webMcpInputSchemaValidationError`

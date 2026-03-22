@@ -1,14 +1,9 @@
 import { describe, expect, it } from "vitest";
-import {
-  HYPECODE_INTERVENTION_ACTIONS,
-  HYPECODE_RUN_STATES,
-  type HypeCodeExecutionGraphSummary,
-  type HypeCodeReviewPackSummary,
-  type HypeCodeTaskSummary,
-} from "./hypeCodeMissionControl";
 
 import {
   CODE_RUNTIME_RPC_INVOCATION_COMPLETION_MODES,
+  HUGECODE_INTERVENTION_ACTIONS,
+  HUGECODE_RUN_STATES,
   type HugeCodeExecutionGraphSummary,
   type HugeCodeReviewPackSummary,
   type HugeCodeRunPlacementEvidence,
@@ -25,8 +20,8 @@ describe("code runtime host event envelope", () => {
     });
   });
 
-  it("keeps legacy HypeCode mission-control enums behind the explicit compat module", () => {
-    expect(HYPECODE_RUN_STATES).toEqual([
+  it("re-exports canonical HugeCode mission-control enums", () => {
+    expect(HUGECODE_RUN_STATES).toEqual([
       "draft",
       "queued",
       "preparing",
@@ -38,7 +33,7 @@ describe("code runtime host event envelope", () => {
       "failed",
       "cancelled",
     ]);
-    expect(HYPECODE_INTERVENTION_ACTIONS).toContain("switch_profile_and_retry");
+    expect(HUGECODE_INTERVENTION_ACTIONS).toContain("switch_profile_and_retry");
   });
 
   it("supports runtime-native review-pack file and evidence summaries", () => {
@@ -123,9 +118,9 @@ describe("code runtime host event envelope", () => {
         },
       ],
       edges: [],
-    } satisfies HypeCodeExecutionGraphSummary;
+    } satisfies HugeCodeExecutionGraphSummary;
 
-    const taskSummary: HypeCodeTaskSummary = {
+    const taskSummary: HugeCodeTaskSummary = {
       id: "task-1",
       workspaceId: "ws-1",
       title: "Graph-aware task",
@@ -162,11 +157,11 @@ describe("code runtime host event envelope", () => {
       graphId: "graph-1",
       nodes: [],
       edges: [],
-    } satisfies HypeCodeExecutionGraphSummary;
+    } satisfies HugeCodeExecutionGraphSummary;
 
     const graphAlias: HugeCodeExecutionGraphSummary = executionGraph;
-    const reviewPackAlias = {} as HugeCodeReviewPackSummary as HypeCodeReviewPackSummary;
-    const taskAlias = {} as HugeCodeTaskSummary as HypeCodeTaskSummary;
+    const reviewPackAlias = {} as HugeCodeReviewPackSummary;
+    const taskAlias = {} as HugeCodeTaskSummary;
 
     expect(graphAlias.graphId).toBe("graph-1");
     expect(reviewPackAlias).toBeDefined();
