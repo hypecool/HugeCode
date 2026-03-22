@@ -5,12 +5,12 @@ import {
   HYPECODE_INTERVENTION_ACTIONS,
   HYPECODE_RUN_STATES,
   type HypeCodeExecutionGraphSummary,
-  type HugeCodeExecutionGraphSummary,
-  type HugeCodeReviewPackSummary,
-  type HugeCodeTaskSummary,
-  type HypeCodeRunPlacementEvidence,
   type HypeCodeReviewPackSummary,
   type HypeCodeTaskSummary,
+  type HugeCodeExecutionGraphSummary,
+  type HugeCodeReviewPackSummary,
+  type HugeCodeRunPlacementEvidence,
+  type HugeCodeTaskSummary,
   parseCodeRuntimeHostEventEnvelope,
   validateCodeRuntimeHostEventEnvelope,
 } from "./index";
@@ -40,7 +40,7 @@ describe("code runtime host event envelope", () => {
   });
 
   it("supports runtime-native review-pack file and evidence summaries", () => {
-    const placement: HypeCodeRunPlacementEvidence = {
+    const placement: HugeCodeRunPlacementEvidence = {
       resolvedBackendId: "worker-b",
       requestedBackendIds: ["worker-b"],
       resolutionSource: "explicit_preference",
@@ -52,7 +52,7 @@ describe("code runtime host event envelope", () => {
       rationale: "Mission Control requested worker-b and runtime confirmed that placement.",
       backendContract: null,
     };
-    const reviewPack: HypeCodeReviewPackSummary = {
+    const reviewPack: HugeCodeReviewPackSummary = {
       id: "review-pack:run-1",
       runId: "run-1",
       taskId: "task-1",
@@ -163,8 +163,8 @@ describe("code runtime host event envelope", () => {
     } satisfies HypeCodeExecutionGraphSummary;
 
     const graphAlias: HugeCodeExecutionGraphSummary = executionGraph;
-    const reviewPackAlias = {} as HypeCodeReviewPackSummary as HugeCodeReviewPackSummary;
-    const taskAlias = {} as HypeCodeTaskSummary as HugeCodeTaskSummary;
+    const reviewPackAlias = {} as HugeCodeReviewPackSummary as HypeCodeReviewPackSummary;
+    const taskAlias = {} as HugeCodeTaskSummary as HypeCodeTaskSummary;
 
     expect(graphAlias.graphId).toBe("graph-1");
     expect(reviewPackAlias).toBeDefined();

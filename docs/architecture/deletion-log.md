@@ -37,3 +37,8 @@ Residual bridges left intentionally:
 Path count reduced:
 
 - `apps/code/src/services` runtime/WebMCP shim files: 1 more removed
+
+### Step 6. Host-contract internal canonical naming shift
+
+- Migrated `packages/code-runtime-host-contract/src/codeRuntimeRpc.ts` off direct `HypeCode*` mission-control type imports
+- Switched the active runtime RPC contract source to consume `HugeCode*` aliases internally while preserving the public compatibility surface
