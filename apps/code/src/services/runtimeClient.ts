@@ -132,7 +132,7 @@ export {
   RuntimeRpcContractFreezeEffectiveAtMismatchError,
   RuntimeRpcContractProfileMismatchError,
   RuntimeRpcContractVersionMismatchError,
-} from "./runtimeClientCapabilitiesContract";
+} from "@ku0/code-runtime-client/runtimeClientCapabilitiesContract";
 export { detectRuntimeMode } from "./runtimeClientMode";
 export {
   getRuntimeClient,

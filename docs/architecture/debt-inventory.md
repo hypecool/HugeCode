@@ -4,8 +4,8 @@
 
 ### 1. Shared client ownership is incomplete
 
-- `packages/code-runtime-client` exists, but `apps/code/src/services/runtimeClient*.ts` still contains neighboring logic and types.
-- `packages/code-runtime-webmcp-client` exists, but `apps/code/src/services/webMcpBridge*.ts` still contains duplicated type and behavior surfaces.
+- `packages/code-runtime-client` exists, but `apps/code/src/services/runtimeClient*.ts` still contains neighboring behavior and one remaining app-local type-instantiation shim.
+- `packages/code-runtime-webmcp-client` exists, but `apps/code/src/services/webMcpBridge*.ts` still contains app-owned behavior wiring even after type/helper shims were deleted.
 
 ### 2. Public contract naming is still split
 
@@ -21,15 +21,14 @@
 
 ### 4. Shared workspace shell still consumes legacy mission-control naming
 
-- `packages/code-workspace-client` uses `HypeCodeMissionControl*` and `HypeCodeReviewPack*` names.
+- Resolved in the active path. Remaining risk is public compat export surface, not active workspace-client imports.
 
 ## Duplicate Contracts and DTOs
 
-- `apps/code/src/services/webMcpBridgeTypes.ts`
-  Duplicates the shared WebMCP/runtime-agent type surface.
 - `apps/code/src/services/runtimeClientTypes.ts`
-  Duplicates runtime-client type ownership beside `packages/code-runtime-client`.
-- app-local WebMCP schema-validation shim files still exist in `apps/code/src/services/*` instead of consumers depending directly on package-owned modules.
+  Still instantiates runtime-client type ownership beside `packages/code-runtime-client`.
+- `packages/code-runtime-webmcp-client/src/webMcpInputSchemaValidationError.ts`
+  Still exists as a compatibility entrypoint, even though the canonical implementation now lives in `packages/code-runtime-client`.
 
 ## Compatibility Surfaces
 
@@ -60,6 +59,6 @@
 
 ## Immediate Deletion Candidates
 
-- app-local duplicated WebMCP/runtime-agent type ownership in `apps/code/src/services/webMcpBridgeTypes.ts`
-- lingering app-local imports of package-owned runtime-client/WebMCP primitives
-- downstream uses of `HypeCode*` aliases in shared client packages once canonical `HugeCode*` imports are migrated
+- `apps/code/src/services/runtimeClientTypes.ts` once `AppSettings` typing can be instantiated at the app/runtime boundary instead of the service layer
+- remaining `HypeCode*` compat exports from `packages/code-runtime-host-contract` once downstream compatibility consumers are gone
+- any Tauri adapter code that still normalizes runtime-domain errors or state instead of forwarding canonical contracts

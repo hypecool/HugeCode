@@ -1184,6 +1184,100 @@ export type RuntimeRunId = string;
 
 export type RuntimeRunStartRequest = AgentTaskStartRequest;
 
+export type RuntimeRunPrepareV2Request = AgentTaskStartRequest;
+
+export type RuntimeRunRiskLevelV2 = "low" | "medium" | "high";
+
+export type RuntimeRunIntentBriefV2 = {
+  title: string | null;
+  objective: string | null;
+  summary: string;
+  taskSource: AgentTaskSourceSummary | null;
+  accessMode: AccessMode;
+  executionMode: AgentTaskExecutionMode;
+  executionProfileId: string | null;
+  reviewProfileId: string | null;
+  validationPresetId: string | null;
+  preferredBackendIds: string[];
+  requiredCapabilities: string[];
+  riskLevel: RuntimeRunRiskLevelV2;
+  clarified: boolean;
+  missingContext: string[];
+};
+
+export type RuntimeContextEntryV2 = {
+  id: string;
+  label: string;
+  kind: "workspace" | "repo_rule" | "validation" | "backend" | "task_source" | "step";
+  detail: string | null;
+  source: string | null;
+};
+
+export type RuntimeContextLayerTierV2 = "hot" | "warm" | "cold";
+
+export type RuntimeContextLayerV2 = {
+  tier: RuntimeContextLayerTierV2;
+  summary: string;
+  entries: RuntimeContextEntryV2[];
+};
+
+export type RuntimeContextWorkingSetV2 = {
+  summary: string;
+  workspaceRoot: string | null;
+  layers: RuntimeContextLayerV2[];
+};
+
+export type RuntimeExecutionNodeKindV2 =
+  | "clarify"
+  | "read"
+  | "plan"
+  | "edit"
+  | "validate"
+  | "review";
+
+export type RuntimeExecutionNodeStatusV2 = "planned" | "running" | "completed" | "blocked";
+
+export type RuntimeExecutionNodeV2 = {
+  id: string;
+  label: string;
+  kind: RuntimeExecutionNodeKindV2;
+  status: RuntimeExecutionNodeStatusV2;
+  capability: string;
+  dependsOn: string[];
+  parallelSafe: boolean;
+  requiresApproval: boolean;
+};
+
+export type RuntimeExecutionGraphV2 = {
+  graphId: string;
+  summary: string;
+  nodes: RuntimeExecutionNodeV2[];
+};
+
+export type RuntimeApprovalBatchV2 = {
+  id: string;
+  summary: string;
+  riskLevel: RuntimeRunRiskLevelV2;
+  actionCount: number;
+  stepIds: string[];
+};
+
+export type RuntimeValidationPlanV2 = {
+  required: boolean;
+  summary: string;
+  commands: string[];
+};
+
+export type RuntimeRunPrepareV2Response = {
+  preparedAt: number;
+  runIntent: RuntimeRunIntentBriefV2;
+  contextWorkingSet: RuntimeContextWorkingSetV2;
+  executionGraph: RuntimeExecutionGraphV2;
+  approvalBatches: RuntimeApprovalBatchV2[];
+  validationPlan: RuntimeValidationPlanV2;
+  reviewFocus: string[];
+};
+
 export type RuntimeRunCancelRequest = {
   runId: RuntimeRunId;
   reason?: string | null;
@@ -1206,6 +1300,14 @@ export type RuntimeRunInterventionRequest = {
 };
 
 export type RuntimeRunSubscribeRequest = {
+  runId: RuntimeRunId;
+};
+
+export type RuntimeRunGetV2Request = {
+  runId: RuntimeRunId;
+};
+
+export type RuntimeReviewGetV2Request = {
   runId: RuntimeRunId;
 };
 
@@ -1263,6 +1365,24 @@ export type KernelJobCallbackRemoveAckV3 = {
 };
 
 export type RuntimeRunSummary = AgentTaskSummary;
+
+export type RuntimeRunRecordV2 = {
+  run: RuntimeRunSummary;
+  missionRun: HypeCodeRunSummary;
+  reviewPack: HypeCodeReviewPackSummary | null;
+};
+
+export type RuntimeRunStartV2Response = RuntimeRunRecordV2;
+
+export type RuntimeRunGetV2Response = RuntimeRunRecordV2;
+
+export type RuntimeRunSubscribeV2Response = RuntimeRunRecordV2 | null;
+
+export type RuntimeRunResumeV2Response = RuntimeRunRecordV2;
+
+export type RuntimeRunInterventionV2Response = RuntimeRunRecordV2;
+
+export type RuntimeReviewGetV2Response = HypeCodeReviewPackSummary | null;
 
 export type RuntimeRunCancelAck = {
   accepted: boolean;
@@ -3325,10 +3445,17 @@ export const CODE_RUNTIME_RPC_METHODS = {
   TURN_SEND: "code_turn_send",
   TURN_INTERRUPT: "code_turn_interrupt",
   RUN_START: "code_runtime_run_start",
+  RUN_PREPARE_V2: "code_runtime_run_prepare_v2",
+  RUN_START_V2: "code_runtime_run_start_v2",
   RUN_CANCEL: "code_runtime_run_cancel",
   RUN_RESUME: "code_runtime_run_resume",
+  RUN_RESUME_V2: "code_runtime_run_resume_v2",
   RUN_INTERVENE: "code_runtime_run_intervene",
+  RUN_INTERVENE_V2: "code_runtime_run_intervene_v2",
   RUN_SUBSCRIBE: "code_runtime_run_subscribe",
+  RUN_GET_V2: "code_runtime_run_get_v2",
+  RUN_SUBSCRIBE_V2: "code_runtime_run_subscribe_v2",
+  REVIEW_GET_V2: "code_runtime_review_get_v2",
   RUNS_LIST: "code_runtime_runs_list",
   KERNEL_JOB_START_V3: "code_kernel_job_start_v3",
   KERNEL_JOB_GET_V3: "code_kernel_job_get_v3",
@@ -3476,6 +3603,7 @@ export const CODE_RUNTIME_RPC_FEATURES = Object.freeze([
   "runtime_autonomy_v2",
   "runtime_autonomy_safety_v1",
   "runtime_kernel_v2",
+  "runtime_kernel_prepare_v2",
   "runtime_kernel_projection_v3",
   "runtime_kernel_jobs_v3",
   "runtime_stream_backpressure_v1",
@@ -3805,7 +3933,43 @@ export interface CodeRuntimeRpcRequestPayloadByMethod {
   [CODE_RUNTIME_RPC_METHODS.TURN_INTERRUPT]: {
     payload: TurnInterruptRequestCompat;
   };
+  [CODE_RUNTIME_RPC_METHODS.RUN_PREPARE_V2]: RuntimeRunPrepareV2Request & {
+    workspace_id?: string;
+    thread_id?: string | null;
+    request_id?: string;
+    model_id?: string | null;
+    reason_effort?: ReasonEffort | null;
+    access_mode?: AccessMode;
+    execution_mode?: AgentTaskExecutionMode;
+    preferred_backend_ids?: string[] | null;
+    auto_drive?: AgentTaskAutoDriveState | null;
+    steps: Array<
+      AgentTaskStepInput & {
+        timeout_ms?: number | null;
+        requires_approval?: boolean | null;
+        approval_reason?: string | null;
+      }
+    >;
+  };
   [CODE_RUNTIME_RPC_METHODS.RUN_START]: RuntimeRunStartRequest & {
+    workspace_id?: string;
+    thread_id?: string | null;
+    request_id?: string;
+    model_id?: string | null;
+    reason_effort?: ReasonEffort | null;
+    access_mode?: AccessMode;
+    execution_mode?: AgentTaskExecutionMode;
+    preferred_backend_ids?: string[] | null;
+    auto_drive?: AgentTaskAutoDriveState | null;
+    steps: Array<
+      AgentTaskStepInput & {
+        timeout_ms?: number | null;
+        requires_approval?: boolean | null;
+        approval_reason?: string | null;
+      }
+    >;
+  };
+  [CODE_RUNTIME_RPC_METHODS.RUN_START_V2]: RuntimeRunStartRequest & {
     workspace_id?: string;
     thread_id?: string | null;
     request_id?: string;
@@ -3829,13 +3993,31 @@ export interface CodeRuntimeRpcRequestPayloadByMethod {
   [CODE_RUNTIME_RPC_METHODS.RUN_RESUME]: RuntimeRunResumeRequest & {
     run_id?: string;
   };
+  [CODE_RUNTIME_RPC_METHODS.RUN_RESUME_V2]: RuntimeRunResumeRequest & {
+    run_id?: string;
+  };
   [CODE_RUNTIME_RPC_METHODS.RUN_INTERVENE]: RuntimeRunInterventionRequest & {
     run_id?: string;
     instruction_patch?: string | null;
     execution_profile_id?: string | null;
     preferred_backend_ids?: string[] | null;
   };
+  [CODE_RUNTIME_RPC_METHODS.RUN_INTERVENE_V2]: RuntimeRunInterventionRequest & {
+    run_id?: string;
+    instruction_patch?: string | null;
+    execution_profile_id?: string | null;
+    preferred_backend_ids?: string[] | null;
+  };
   [CODE_RUNTIME_RPC_METHODS.RUN_SUBSCRIBE]: RuntimeRunSubscribeRequest & {
+    run_id?: string;
+  };
+  [CODE_RUNTIME_RPC_METHODS.RUN_GET_V2]: RuntimeRunGetV2Request & {
+    run_id?: string;
+  };
+  [CODE_RUNTIME_RPC_METHODS.RUN_SUBSCRIBE_V2]: RuntimeRunGetV2Request & {
+    run_id?: string;
+  };
+  [CODE_RUNTIME_RPC_METHODS.REVIEW_GET_V2]: RuntimeReviewGetV2Request & {
     run_id?: string;
   };
   [CODE_RUNTIME_RPC_METHODS.RUNS_LIST]: RuntimeRunsListRequest & {
@@ -4269,11 +4451,18 @@ export interface CodeRuntimeRpcResponsePayloadByMethod {
   [CODE_RUNTIME_RPC_METHODS.THREAD_LIVE_UNSUBSCRIBE]: ThreadLiveUnsubscribeResult;
   [CODE_RUNTIME_RPC_METHODS.TURN_SEND]: TurnAck;
   [CODE_RUNTIME_RPC_METHODS.TURN_INTERRUPT]: boolean;
+  [CODE_RUNTIME_RPC_METHODS.RUN_PREPARE_V2]: RuntimeRunPrepareV2Response;
   [CODE_RUNTIME_RPC_METHODS.RUN_START]: RuntimeRunSummary;
+  [CODE_RUNTIME_RPC_METHODS.RUN_START_V2]: RuntimeRunStartV2Response;
   [CODE_RUNTIME_RPC_METHODS.RUN_CANCEL]: RuntimeRunCancelAck;
   [CODE_RUNTIME_RPC_METHODS.RUN_RESUME]: RuntimeRunResumeAck;
+  [CODE_RUNTIME_RPC_METHODS.RUN_RESUME_V2]: RuntimeRunResumeV2Response;
   [CODE_RUNTIME_RPC_METHODS.RUN_INTERVENE]: RuntimeRunInterventionAck;
+  [CODE_RUNTIME_RPC_METHODS.RUN_INTERVENE_V2]: RuntimeRunInterventionV2Response;
   [CODE_RUNTIME_RPC_METHODS.RUN_SUBSCRIBE]: RuntimeRunSummary | null;
+  [CODE_RUNTIME_RPC_METHODS.RUN_GET_V2]: RuntimeRunGetV2Response;
+  [CODE_RUNTIME_RPC_METHODS.RUN_SUBSCRIBE_V2]: RuntimeRunSubscribeV2Response;
+  [CODE_RUNTIME_RPC_METHODS.REVIEW_GET_V2]: RuntimeReviewGetV2Response;
   [CODE_RUNTIME_RPC_METHODS.RUNS_LIST]: RuntimeRunSummary[];
   [CODE_RUNTIME_RPC_METHODS.KERNEL_JOB_START_V3]: KernelJob;
   [CODE_RUNTIME_RPC_METHODS.KERNEL_JOB_GET_V3]: KernelJob | null;
