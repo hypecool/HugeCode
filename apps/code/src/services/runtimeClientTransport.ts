@@ -31,9 +31,15 @@ export {
   RuntimeRpcMethodUnsupportedError,
   RuntimeUnavailableError,
 } from "@ku0/code-runtime-client/runtimeClientTransportShared";
-import type { RuntimeCapabilitiesSummary, RuntimeClient } from "./runtimeClient";
+import type {
+  RuntimeCapabilitiesSummary,
+  RuntimeClient as SharedRuntimeClient,
+} from "@ku0/code-runtime-client/runtimeClientTypes";
+import type { AppSettings } from "../types";
 import { createUnavailableRuntimeClient } from "./runtimeClientUnavailable";
 import { invokeWebRuntimeRaw } from "./runtimeClientWebTransport";
+
+type RuntimeClient = SharedRuntimeClient<AppSettings>;
 
 function classifyRuntimeRpcFailure(cause: unknown): {
   error: unknown;
