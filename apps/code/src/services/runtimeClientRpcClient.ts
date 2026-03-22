@@ -91,7 +91,7 @@ import {
   THREAD_LIVE_RPC_METHODS,
 } from "./runtimeClientRpcMethods";
 import { adaptRuntimeRpcPayload, withCanonicalFields } from "./runtimeClientRpcPayloads";
-import type { RuntimeClient } from "./runtimeClientTypes";
+import type { RuntimeClient } from "./runtimeClient";
 import {
   invokeRuntimeExtensionRpc,
   normalizeNullableTerminalSessionSummary,

@@ -25,8 +25,6 @@
 
 ## Duplicate Contracts and DTOs
 
-- `apps/code/src/services/runtimeClientTypes.ts`
-  Still instantiates runtime-client type ownership beside `packages/code-runtime-client`.
 - `packages/code-runtime-webmcp-client/src/webMcpInputSchemaValidationError.ts`
   Still exists as a compatibility entrypoint, even though the canonical implementation now lives in `packages/code-runtime-client`.
 
@@ -59,6 +57,5 @@
 
 ## Immediate Deletion Candidates
 
-- `apps/code/src/services/runtimeClientTypes.ts` once `AppSettings` typing can be instantiated at the app/runtime boundary instead of the service layer
 - remaining `HypeCode*` compat exports from `packages/code-runtime-host-contract` once downstream compatibility consumers are gone
 - any Tauri adapter code that still normalizes runtime-domain errors or state instead of forwarding canonical contracts

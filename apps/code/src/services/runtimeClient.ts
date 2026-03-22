@@ -1,3 +1,5 @@
+import type { AppSettings } from "../types";
+
 export type {
   AcpIntegrationProbeRequest,
   AcpIntegrationState,
@@ -142,6 +144,9 @@ export {
 } from "./runtimeClientTransport";
 export type {
   RuntimeCapabilitiesSummary,
-  RuntimeClient,
   RuntimeClientMode,
-} from "./runtimeClientTypes";
+  RuntimeClient as SharedRuntimeClient,
+} from "@ku0/code-runtime-client/runtimeClientTypes";
+
+export type RuntimeClient =
+  import("@ku0/code-runtime-client/runtimeClientTypes").RuntimeClient<AppSettings>;
