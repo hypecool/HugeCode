@@ -40,6 +40,9 @@ jobs:
         uses: ./.github/actions/cache-turbo
 
       - if: inputs.ci_required && inputs.desktop_runtime_changed
+        uses: ./.github/actions/install-linux-desktop-deps
+
+      - if: inputs.ci_required && inputs.desktop_runtime_changed
         uses: ./.github/actions/setup-rust-ci
         with:
           cargo-cache-path: |
