@@ -31,7 +31,7 @@ export {
   RuntimeRpcMethodUnsupportedError,
   RuntimeUnavailableError,
 } from "@ku0/code-runtime-client/runtimeClientTransportShared";
-import type { RuntimeCapabilitiesSummary, RuntimeClient } from "./runtimeClientTypes";
+import type { RuntimeCapabilitiesSummary, RuntimeClient } from "./runtimeClient";
 import { createUnavailableRuntimeClient } from "./runtimeClientUnavailable";
 import { invokeWebRuntimeRaw } from "./runtimeClientWebTransport";
 
