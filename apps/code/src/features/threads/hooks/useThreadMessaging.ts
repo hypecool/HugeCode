@@ -415,7 +415,7 @@ export function useThreadMessaging({
           effort: resolvedEffort ?? "unknown",
           fast_mode: resolvedFastMode ? "true" : "false",
           execution_mode: resolvedExecutionMode,
-          collaboration_mode: sanitizedCollaborationMode ?? "unknown",
+          collaboration_mode: extractCollaborationModeId(sanitizedCollaborationMode) ?? "unknown",
         },
       });
       void trackProductAnalyticsEvent("define_started", analyticsAttributes);
