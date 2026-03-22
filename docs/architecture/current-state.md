@@ -128,7 +128,7 @@ Any part that reconstructs execution truth instead of reading runtime truth is a
 
 ## Suspicious Dependency and Packaging Edges
 
-- `apps/code` now routes package-owned runtime/WebMCP helper imports directly to `@ku0/code-runtime-client` and `@ku0/code-runtime-webmcp-client`, but `services/runtimeClient.ts` still owns the app-specific `AppSettings` specialization.
+- `apps/code` now routes package-owned runtime/WebMCP helper imports directly to `@ku0/code-runtime-client` and `@ku0/code-runtime-webmcp-client`; `services/runtimeClient.ts` only owns the app-specific `AppSettings` specialization, while unavailable-client construction, candidate-invocation transport helpers, and generic runtime-capabilities probe core now live in `@ku0/code-runtime-client`.
 - Shared workspace-client code still imports older mission-control aliases directly from the contract package.
 - The repo defines package-boundary rules in `turbo.json`, but the currently installed dependency state was not ready to run `pnpm check:circular`, so circular-dependency status still needs confirmation after install.
 

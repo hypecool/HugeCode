@@ -71,3 +71,14 @@ Path count reduced:
 
 - Removed the `@ku0/code-runtime-host-contract/codeRuntimeRpcCompat` package export
 - Migrated remaining cross-package compat imports to the canonical root entrypoint
+
+### Step 12. App-local unavailable runtime client deletion
+
+- Deleted `apps/code/src/services/runtimeClientUnavailable.ts`
+- Added `packages/code-runtime-client/src/runtimeClientUnavailable.ts` as the canonical unavailable-runtime constructor
+- Migrated `apps/code/src/services/runtimeClientTransport.ts` to shared candidate-invocation and Tauri transport helpers from `@ku0/code-runtime-client`
+
+### Step 13. App-local runtime capabilities probe core deletion
+
+- Migrated `apps/code/src/services/runtimeClientCapabilitiesProbe.ts` to `@ku0/code-runtime-client/runtimeClientCapabilitiesProbeCore`
+- Deleted app-local duplicates of runtime capabilities cache lifecycle, probe normalization, and advertised-method assertions

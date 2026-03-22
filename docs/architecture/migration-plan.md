@@ -77,23 +77,34 @@ Collapse duplicated runtime-adjacent ownership into the canonical path while del
 - Removed the `@ku0/code-runtime-host-contract/codeRuntimeRpcCompat` export
 - Kept the remaining alias helpers available only through the canonical root entrypoint
 
+### Step 12. App-local unavailable transport helper deletion
+
+- Moved the unavailable-runtime client constructor into `@ku0/code-runtime-client`
+- Migrated `apps/code/src/services/runtimeClientTransport.ts` to use shared candidate-invocation and Tauri transport helpers from `@ku0/code-runtime-client`
+- Deleted `apps/code/src/services/runtimeClientUnavailable.ts`
+
+### Step 13. App-local capabilities probe core deletion
+
+- Migrated `apps/code/src/services/runtimeClientCapabilitiesProbe.ts` to shared cache/probe/assert helpers from `@ku0/code-runtime-client`
+- Removed app-local duplication of runtime capabilities cache management, probe normalization, and capability-support assertions
+
 ## Next steps
 
-### Step 12. Collapse mission-control snapshot/projection fallback logic
+### Step 14. Collapse mission-control snapshot/projection fallback logic
 
 Target:
 
 - shared workspace shell reads kernel projection and runtime snapshot truth only
 - remove local projection fallback logic that reconstructs equivalent truth from older shapes
 
-### Step 13. Reduce Tauri bridge surface to host adaptation only
+### Step 15. Reduce Tauri bridge surface to host adaptation only
 
 Target:
 
 - remove runtime-domain normalization from Tauri adapters where canonical contract types already exist
 - keep only transport adaptation and platform-specific error mapping
 
-### Step 14. Delete the remaining broad compat helpers
+### Step 16. Delete the remaining broad compat helpers
 
 Target:
 

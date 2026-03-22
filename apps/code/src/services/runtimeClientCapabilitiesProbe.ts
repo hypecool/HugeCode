@@ -1,30 +1,23 @@
 import {
-  CODE_RUNTIME_RPC_EMPTY_PARAMS,
   CODE_RUNTIME_RPC_METHODS,
   type CodeRuntimeRpcMethod,
-  isCodeRuntimeRpcMethodNotFoundErrorCode,
 } from "@ku0/code-runtime-host-contract";
 import { invoke } from "@tauri-apps/api/core";
 import {
-  assertRuntimeRpcCanonicalMethodsSupported,
-  assertRuntimeRpcContractFeaturesSupported,
-  assertRuntimeRpcContractMetadataSupported,
-  assertRuntimeRpcContractVersionSupported,
-  assertRuntimeRpcFreezeEffectiveAtSupported,
-  assertRuntimeRpcMethodSetHashSupported,
-  assertRuntimeRpcProfileSupported,
   isRuntimeRpcContractGuardError,
-  normalizeRpcCapabilitiesPayload,
   type RuntimeRpcCapabilitiesSnapshot,
-  type RuntimeRpcContractGuardError,
 } from "@ku0/code-runtime-client/runtimeClientCapabilitiesContract";
-import { toRuntimeRpcInvocationError } from "@ku0/code-runtime-client/runtimeClientErrorUtils";
 import { resolveCanonicalCodeRuntimeRpcMethod } from "@ku0/code-runtime-client/runtimeClientMethodSets";
 import {
-  RuntimeRpcMethodUnsupportedError,
-  type RuntimeRpcParams,
-  type RuntimeRpcRawInvoker,
-} from "@ku0/code-runtime-client/runtimeClientTransportShared";
+  assertRuntimeRpcMethodSupportedByCapabilities,
+  buildWebRuntimeCapabilitiesProbeCacheKey,
+  createRuntimeRpcCapabilitiesProbeCache,
+  readCachedRuntimeCapabilitiesSnapshot,
+  resetRuntimeRpcCapabilitiesProbeCache,
+  resolveRuntimeRpcCapabilitiesSnapshot,
+  resolveRuntimeRpcCapabilitiesWithCache,
+} from "@ku0/code-runtime-client/runtimeClientCapabilitiesProbeCore";
+import type { RuntimeRpcParams } from "@ku0/code-runtime-client/runtimeClientTransportShared";
 import type { RuntimeClientMode } from "./runtimeClient";
 import { subscribeScopedRuntimeUpdatedEvents } from "./runtimeUpdatedEvents";
 import { invokeWebRuntimeRawAttempt } from "./runtimeClientWebHttpTransport";
@@ -42,50 +35,17 @@ import {
   readManualWebRuntimeGatewayProfile,
 } from "./runtimeWebGatewayConfig";
 
-type RuntimeRpcCapabilitiesProbeResult = {
-  snapshot: RuntimeRpcCapabilitiesSnapshot | null;
-  cacheable: boolean;
-};
+type RuntimeRpcCapabilitiesProbeCache = ReturnType<typeof createRuntimeRpcCapabilitiesProbeCache>;
 
-type RuntimeRpcCapabilitiesProbeCache = {
-  snapshot: RuntimeRpcCapabilitiesSnapshot | null | undefined;
-  snapshotCachedAtMs: number | null;
-  inFlight: Promise<RuntimeRpcCapabilitiesSnapshot | null> | null;
-  contractGuardError: RuntimeRpcContractGuardError | null;
-  contractGuardErrorCachedAtMs: number | null;
-};
+const tauriRuntimeCapabilitiesProbeCache: RuntimeRpcCapabilitiesProbeCache =
+  createRuntimeRpcCapabilitiesProbeCache();
 
-const TAURI_RPC_CAPABILITIES_METHOD_CANDIDATES = [CODE_RUNTIME_RPC_METHODS.RPC_CAPABILITIES];
-const RUNTIME_RPC_CAPABILITIES_CACHE_TTL_MS = 60_000;
-const RUNTIME_RPC_CAPABILITIES_NULL_CACHE_TTL_MS = 5_000;
-const RUNTIME_RPC_CAPABILITIES_CONTRACT_ERROR_TTL_MS = 5_000;
-
-const tauriRuntimeCapabilitiesProbeCache: RuntimeRpcCapabilitiesProbeCache = {
-  snapshot: undefined,
-  snapshotCachedAtMs: null,
-  inFlight: null,
-  contractGuardError: null,
-  contractGuardErrorCachedAtMs: null,
-};
-
-const webRuntimeCapabilitiesProbeCache: RuntimeRpcCapabilitiesProbeCache = {
-  snapshot: undefined,
-  snapshotCachedAtMs: null,
-  inFlight: null,
-  contractGuardError: null,
-  contractGuardErrorCachedAtMs: null,
-};
+const webRuntimeCapabilitiesProbeCache: RuntimeRpcCapabilitiesProbeCache =
+  createRuntimeRpcCapabilitiesProbeCache();
 
 let webRuntimeCapabilitiesProbeCacheKey: string | null = null;
 let runtimeCapabilitiesCacheInvalidationSubscribed = false;
 const LOOPBACK_RUNTIME_HOSTS = new Set(["127.0.0.1", "localhost", "::1"]);
-
-function buildWebRuntimeCapabilitiesProbeCacheKey(endpoint: string | null): string | null {
-  if (!endpoint) {
-    return endpoint;
-  }
-  return `${endpoint}::${resolveWebRuntimeAuthToken(endpoint) ?? ""}`;
-}
 
 function isLoopbackRuntimeEndpoint(endpoint: string): boolean {
   try {
@@ -114,19 +74,6 @@ function clearStaleManualLoopbackRuntimeProfile(endpoint: string, cause: unknown
   clearManualWebRuntimeGatewayProfile();
   invalidateRuntimeCapabilitiesProbeCaches();
   return true;
-}
-
-function isRpcCapabilitiesMethodNotFound(cause: unknown): boolean {
-  const runtimeError = toRuntimeRpcInvocationError(cause);
-  return runtimeError !== null && isCodeRuntimeRpcMethodNotFoundErrorCode(runtimeError.code);
-}
-
-function resetRuntimeRpcCapabilitiesProbeCache(cache: RuntimeRpcCapabilitiesProbeCache): void {
-  cache.snapshot = undefined;
-  cache.snapshotCachedAtMs = null;
-  cache.inFlight = null;
-  cache.contractGuardError = null;
-  cache.contractGuardErrorCachedAtMs = null;
 }
 
 function shouldInvalidateRuntimeCapabilitiesCache(reason: unknown): boolean {
@@ -162,103 +109,6 @@ function ensureRuntimeCapabilitiesProbeCacheInvalidationSubscription(): void {
   );
 }
 
-function isRuntimeCacheEntryValid(cachedAtMs: number, ttlMs: number): boolean {
-  return Date.now() - cachedAtMs < ttlMs;
-}
-
-function getRuntimeSnapshotCacheTtlMs(snapshot: RuntimeRpcCapabilitiesSnapshot | null): number {
-  return snapshot === null
-    ? RUNTIME_RPC_CAPABILITIES_NULL_CACHE_TTL_MS
-    : RUNTIME_RPC_CAPABILITIES_CACHE_TTL_MS;
-}
-
-async function resolveRuntimeRpcCapabilitiesSnapshot(
-  invokeRaw: RuntimeRpcRawInvoker
-): Promise<RuntimeRpcCapabilitiesProbeResult> {
-  for (const method of TAURI_RPC_CAPABILITIES_METHOD_CANDIDATES) {
-    try {
-      const result = await invokeRaw(method, CODE_RUNTIME_RPC_EMPTY_PARAMS);
-      return { snapshot: normalizeRpcCapabilitiesPayload(result), cacheable: true };
-    } catch (cause) {
-      if (isRpcCapabilitiesMethodNotFound(cause)) {
-        continue;
-      }
-      return { snapshot: null, cacheable: false };
-    }
-  }
-
-  return { snapshot: null, cacheable: true };
-}
-
-async function resolveRuntimeRpcCapabilitiesWithCache(
-  cache: RuntimeRpcCapabilitiesProbeCache,
-  resolveProbeResult: () => Promise<RuntimeRpcCapabilitiesProbeResult>
-): Promise<RuntimeRpcCapabilitiesSnapshot | null> {
-  if (cache.contractGuardError) {
-    const cachedAtMs = cache.contractGuardErrorCachedAtMs;
-    if (
-      cachedAtMs !== null &&
-      isRuntimeCacheEntryValid(cachedAtMs, RUNTIME_RPC_CAPABILITIES_CONTRACT_ERROR_TTL_MS)
-    ) {
-      throw cache.contractGuardError;
-    }
-    cache.contractGuardError = null;
-    cache.contractGuardErrorCachedAtMs = null;
-  }
-
-  if (cache.snapshot !== undefined) {
-    const cachedAtMs = cache.snapshotCachedAtMs;
-    if (
-      cachedAtMs !== null &&
-      isRuntimeCacheEntryValid(cachedAtMs, getRuntimeSnapshotCacheTtlMs(cache.snapshot))
-    ) {
-      return cache.snapshot;
-    }
-    cache.snapshot = undefined;
-    cache.snapshotCachedAtMs = null;
-  }
-
-  if (cache.inFlight) {
-    return cache.inFlight;
-  }
-
-  cache.inFlight = (async () => {
-    const probeResult = await resolveProbeResult();
-    if (!probeResult.cacheable) {
-      return null;
-    }
-
-    const snapshot = probeResult.snapshot;
-    if (snapshot?.contractVersion) {
-      assertRuntimeRpcContractVersionSupported(snapshot.contractVersion);
-    }
-    if (snapshot) {
-      assertRuntimeRpcMethodSetHashSupported(snapshot);
-      assertRuntimeRpcProfileSupported(snapshot);
-      assertRuntimeRpcCanonicalMethodsSupported(snapshot);
-      assertRuntimeRpcContractFeaturesSupported(snapshot);
-      assertRuntimeRpcFreezeEffectiveAtSupported(snapshot);
-      assertRuntimeRpcContractMetadataSupported(snapshot);
-    }
-
-    cache.snapshot = snapshot;
-    cache.snapshotCachedAtMs = Date.now();
-    return snapshot;
-  })();
-
-  try {
-    return await cache.inFlight;
-  } catch (cause) {
-    if (isRuntimeRpcContractGuardError(cause)) {
-      cache.contractGuardError = cause;
-      cache.contractGuardErrorCachedAtMs = Date.now();
-    }
-    throw cause;
-  } finally {
-    cache.inFlight = null;
-  }
-}
-
 export async function resolveTauriRpcCapabilitiesSnapshot(): Promise<RuntimeRpcCapabilitiesSnapshot | null> {
   ensureRuntimeCapabilitiesProbeCacheInvalidationSubscription();
   return resolveRuntimeRpcCapabilitiesWithCache(tauriRuntimeCapabilitiesProbeCache, () =>
@@ -271,7 +121,10 @@ export async function resolveTauriRpcCapabilitiesSnapshot(): Promise<RuntimeRpcC
 
 export async function resolveWebRuntimeCapabilitiesSnapshot(): Promise<RuntimeRpcCapabilitiesSnapshot | null> {
   const endpoint = resolveWebRuntimeEndpoint();
-  const cacheKey = buildWebRuntimeCapabilitiesProbeCacheKey(endpoint);
+  const cacheKey = buildWebRuntimeCapabilitiesProbeCacheKey(
+    endpoint,
+    endpoint ? resolveWebRuntimeAuthToken(endpoint) : null
+  );
   const hasFetch = typeof fetch === "function";
   if (!endpoint || !hasFetch) {
     if (webRuntimeCapabilitiesProbeCacheKey !== cacheKey) {
@@ -302,34 +155,15 @@ export async function resolveWebRuntimeCapabilitiesSnapshot(): Promise<RuntimeRp
 
 export function readCachedWebRuntimeCapabilitiesSnapshot(): RuntimeRpcCapabilitiesSnapshot | null {
   const endpoint = resolveWebRuntimeEndpoint();
-  const cacheKey = buildWebRuntimeCapabilitiesProbeCacheKey(endpoint);
+  const cacheKey = buildWebRuntimeCapabilitiesProbeCacheKey(
+    endpoint,
+    endpoint ? resolveWebRuntimeAuthToken(endpoint) : null
+  );
   if (webRuntimeCapabilitiesProbeCacheKey !== cacheKey) {
     return null;
   }
 
-  const snapshot = webRuntimeCapabilitiesProbeCache.snapshot;
-  return snapshot === undefined ? null : snapshot;
-}
-
-function assertRuntimeRpcMethodSupportedByCapabilities(
-  method: CodeRuntimeRpcMethod,
-  snapshot: RuntimeRpcCapabilitiesSnapshot | null
-): void {
-  if (method === CODE_RUNTIME_RPC_METHODS.RPC_CAPABILITIES || !snapshot) {
-    return;
-  }
-  if (snapshot.contractVersion === null) {
-    return;
-  }
-  if (snapshot.methods.has(method)) {
-    return;
-  }
-
-  throw new RuntimeRpcMethodUnsupportedError(
-    method,
-    [method],
-    `Runtime capabilities do not advertise method '${method}'.`
-  );
+  return readCachedRuntimeCapabilitiesSnapshot(webRuntimeCapabilitiesProbeCache);
 }
 
 export async function resolveTauriRuntimeRpcMethodCandidates(
@@ -367,7 +201,7 @@ export async function resolveWebRuntimeWsRpcEndpoint(
     return null;
   }
 
-  const cacheKey = buildWebRuntimeCapabilitiesProbeCacheKey(endpoint);
+  const cacheKey = buildWebRuntimeCapabilitiesProbeCacheKey(endpoint, authToken);
   if (webRuntimeCapabilitiesProbeCacheKey !== cacheKey) {
     return null;
   }

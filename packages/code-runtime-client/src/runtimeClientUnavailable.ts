@@ -1,10 +1,10 @@
-import type { RuntimeClient } from "./runtimeClient";
+import type { RuntimeClient } from "./runtimeClientTypes";
 
 type RejectUnavailableFn = <T>(operation: string) => Promise<T>;
 
-export function createUnavailableRuntimeClient(
-  rejectUnavailable: RejectUnavailableFn
-): RuntimeClient {
+export function createUnavailableRuntimeClient<
+  TAppSettings extends Record<string, unknown> = Record<string, unknown>,
+>(rejectUnavailable: RejectUnavailableFn): RuntimeClient<TAppSettings> {
   return {
     health() {
       return rejectUnavailable("health check");
@@ -333,7 +333,7 @@ export function createUnavailableRuntimeClient(
     runtimeToolMetricsRecord() {
       return rejectUnavailable("record runtime tool metrics");
     },
-    runtimeToolMetricsRead(_query: unknown) {
+    runtimeToolMetricsRead() {
       return rejectUnavailable("read runtime tool metrics");
     },
     runtimeToolMetricsReset() {

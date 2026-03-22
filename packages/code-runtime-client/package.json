@@ -33,6 +33,10 @@
       "types": "./src/runtimeClientTransportCore.ts",
       "default": "./src/runtimeClientTransportCore.ts"
     },
+    "./runtimeClientUnavailable": {
+      "types": "./src/runtimeClientUnavailable.ts",
+      "default": "./src/runtimeClientUnavailable.ts"
+    },
     "./runtimeClientTransportShared": {
       "types": "./src/runtimeClientTransportShared.ts",
       "default": "./src/runtimeClientTransportShared.ts"

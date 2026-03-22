@@ -5,6 +5,7 @@
 ### 1. Shared client ownership is incomplete
 
 - `packages/code-runtime-client` exists, but `apps/code/src/services/runtimeClient*.ts` still contains neighboring app-owned behavior beside the extracted client package.
+- `apps/code/src/services/runtimeClientTransport.ts` no longer owns candidate invocation or unavailable-client construction, and `runtimeClientCapabilitiesProbe.ts` now delegates cache/probe/assert core to `@ku0/code-runtime-client`, but `runtimeClientRpcClient.ts` and host-mode wiring still sit in the app layer.
 - `packages/code-runtime-webmcp-client` exists, but `apps/code/src/services/webMcpBridge*.ts` still contains app-owned behavior wiring even after type/helper shims were deleted.
 
 ### 2. Public contract naming split is resolved
@@ -32,6 +33,8 @@
 
 - `codeRuntimeRpcCompat`
   Narrowed and no longer exported as a dedicated package subpath. Active runtime and app code no longer depend on its provider canonicalization or method-not-found helpers. Remaining surface is root-re-exported field aliasing, legacy method aliases, and compat-focused tests.
+- `runtimeClientUnavailable`
+  Resolved. The unavailable-runtime implementation now lives only in `packages/code-runtime-client`.
 - deprecated Tauri aggregation surfaces are blocked by tests, which is good, but their existence shows the repo is still carrying compatibility cleanup work.
 
 ## Suspicious Layering
