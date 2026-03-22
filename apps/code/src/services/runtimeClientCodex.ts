@@ -10,7 +10,7 @@ import type {
 import { isCodeRuntimeRpcMethodNotFoundErrorCode } from "@ku0/code-runtime-host-contract/codeRuntimeRpcCompat";
 
 import { logger } from "./logger";
-import { toRuntimeRpcInvocationError } from "./runtimeClientErrorUtils";
+import { toRuntimeRpcInvocationError } from "@ku0/code-runtime-client/runtimeClientErrorUtils";
 import type { RuntimeClient } from "./runtimeClientTypes";
 
 function isMethodUnsupported(error: unknown): boolean {

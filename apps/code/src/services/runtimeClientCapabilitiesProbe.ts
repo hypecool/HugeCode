@@ -17,14 +17,14 @@ import {
   normalizeRpcCapabilitiesPayload,
   type RuntimeRpcCapabilitiesSnapshot,
   type RuntimeRpcContractGuardError,
-} from "./runtimeClientCapabilitiesContract";
-import { toRuntimeRpcInvocationError } from "./runtimeClientErrorUtils";
-import { resolveCanonicalCodeRuntimeRpcMethod } from "./runtimeClientMethodSets";
+} from "@ku0/code-runtime-client/runtimeClientCapabilitiesContract";
+import { toRuntimeRpcInvocationError } from "@ku0/code-runtime-client/runtimeClientErrorUtils";
+import { resolveCanonicalCodeRuntimeRpcMethod } from "@ku0/code-runtime-client/runtimeClientMethodSets";
 import {
   RuntimeRpcMethodUnsupportedError,
   type RuntimeRpcParams,
   type RuntimeRpcRawInvoker,
-} from "./runtimeClientTransportShared";
+} from "@ku0/code-runtime-client/runtimeClientTransportShared";
 import type { RuntimeClientMode } from "./runtimeClientTypes";
 import { subscribeScopedRuntimeUpdatedEvents } from "./runtimeUpdatedEvents";
 import { invokeWebRuntimeRawAttempt } from "./runtimeClientWebHttpTransport";
