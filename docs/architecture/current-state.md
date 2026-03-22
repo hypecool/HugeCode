@@ -111,15 +111,9 @@ Client-side storage and fallback state also still exist:
 
 ### Duplicated or drifting
 
-- `packages/code-runtime-webmcp-client/src/webMcpInputSchemaValidationError.ts`
-  Survives only as a compatibility re-export of the canonical runtime-client implementation.
-- `packages/code-runtime-host-contract`
-  Root entrypoint now exports only canonical `HugeCode*` mission-control types. Legacy `HypeCode*` names survive only behind an explicit compat subpath.
-
 ## Compatibility Layers Still Active
 
 - `packages/code-runtime-host-contract/src/codeRuntimeRpcCompat.ts`
-- `packages/code-runtime-host-contract/src/hypeCodeMissionControl.ts`
 - app runtime and Tauri ports/tests explicitly guard against deprecated compat ports, which confirms the repo is still actively unwinding older surfaces
 
 ## Domain Logic Outside Runtime

@@ -51,28 +51,41 @@ Collapse duplicated runtime-adjacent ownership into the canonical path while del
 - Removed `HypeCode*` mission-control names from the package root entrypoint
 - Exposed legacy names only through the explicit `./hypeCodeMissionControl` subpath
 
+### Step 8. Host-contract mission-control compat deletion
+
+- Replaced the alias-only `hugeCodeMissionControl.ts` bridge with canonical `HugeCode*` source definitions
+- Exported canonical `HUGECODE_*` value constants from the package root
+- Deleted `packages/code-runtime-host-contract/src/hypeCodeMissionControl.ts`
+- Removed the `./hypeCodeMissionControl` package subpath entirely
+
+### Step 9. WebMCP schema-validation compat deletion
+
+- Migrated the last active app consumer off `@ku0/code-runtime-webmcp-client/webMcpInputSchemaValidationError`
+- Deleted `packages/code-runtime-webmcp-client/src/webMcpInputSchemaValidationError.ts`
+- Removed the package subpath so schema-validation errors now come only from `@ku0/code-runtime-client`
+
 ## Next steps
 
-### Step 8. Collapse mission-control snapshot/projection fallback logic
+### Step 10. Collapse mission-control snapshot/projection fallback logic
 
 Target:
 
 - shared workspace shell reads kernel projection and runtime snapshot truth only
 - remove local projection fallback logic that reconstructs equivalent truth from older shapes
 
-### Step 9. Reduce Tauri bridge surface to host adaptation only
+### Step 11. Reduce Tauri bridge surface to host adaptation only
 
 Target:
 
 - remove runtime-domain normalization from Tauri adapters where canonical contract types already exist
 - keep only transport adaptation and platform-specific error mapping
 
-### Step 10. Delete the remaining mission-control compat module
+### Step 12. Delete the remaining broad compat helpers
 
 Target:
 
-- migrate or delete any remaining callers of `./hypeCodeMissionControl`
-- rename the underlying source file away from `HypeCode*` once the compat module is dead
+- narrow `codeRuntimeRpcCompat` to frozen wire-field aliasing only
+- remove convenience/domain helpers that still let clients depend on compatibility behavior
 
 ## Validation gates
 

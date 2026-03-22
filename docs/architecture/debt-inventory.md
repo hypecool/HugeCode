@@ -4,13 +4,13 @@
 
 ### 1. Shared client ownership is incomplete
 
-- `packages/code-runtime-client` exists, but `apps/code/src/services/runtimeClient*.ts` still contains neighboring behavior and one remaining app-local type-instantiation shim.
+- `packages/code-runtime-client` exists, but `apps/code/src/services/runtimeClient*.ts` still contains neighboring app-owned behavior beside the extracted client package.
 - `packages/code-runtime-webmcp-client` exists, but `apps/code/src/services/webMcpBridge*.ts` still contains app-owned behavior wiring even after type/helper shims were deleted.
 
-### 2. Public contract naming is still split
+### 2. Public contract naming split is resolved
 
-- `packages/code-runtime-host-contract` root entrypoint is now canonical `HugeCode*` only.
-- Remaining debt is the explicit `./hypeCodeMissionControl` compat subpath, which still exists for short-lived legacy access.
+- `packages/code-runtime-host-contract` mission-control contracts now publish only canonical `HugeCode*` names.
+- The temporary `./hypeCodeMissionControl` compat subpath is deleted.
 - Downstream active packages no longer mix both names in the live path.
 
 ### 3. Client-side fallback surfaces are too broad
@@ -22,19 +22,16 @@
 
 ### 4. Shared workspace shell still consumes legacy mission-control naming
 
-- Resolved in the active path. Remaining risk is public compat export surface, not active workspace-client imports.
+- Resolved in the active path. No legacy mission-control naming remains in active workspace-client imports.
 
 ## Duplicate Contracts and DTOs
 
-- `packages/code-runtime-webmcp-client/src/webMcpInputSchemaValidationError.ts`
-  Still exists as a compatibility entrypoint, even though the canonical implementation now lives in `packages/code-runtime-client`.
+- Resolved for `webMcpInputSchemaValidationError`. The canonical implementation now lives only in `packages/code-runtime-client`.
 
 ## Compatibility Surfaces
 
 - `codeRuntimeRpcCompat`
   Still public and broad.
-- `hypeCodeMissionControl`
-  Explicit compat subpath still exists because the underlying source file and legacy names have not been deleted yet.
 - deprecated Tauri aggregation surfaces are blocked by tests, which is good, but their existence shows the repo is still carrying compatibility cleanup work.
 
 ## Suspicious Layering
@@ -54,9 +51,8 @@
 ## Monorepo Risks
 
 - Extracted packages and app-local copies coexist.
-- Installed dependency state currently blocks `pnpm check:circular`, so one graph guard is not verifiable in the current workspace state.
+- `pnpm check:circular` now passes, so the remaining monorepo risk is ownership drift, not an unverified dependency graph.
 
 ## Immediate Deletion Candidates
 
-- remaining `packages/code-runtime-host-contract/src/hypeCodeMissionControl.ts` compat module once downstream compatibility consumers are gone
 - any Tauri adapter code that still normalizes runtime-domain errors or state instead of forwarding canonical contracts
