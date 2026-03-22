@@ -62,7 +62,7 @@ jobs:
 
       - name: Code integration watch
         if: inputs.ci_required
-        run: pnpm code:integration:check
+        run: node scripts/code-integration-watch.mjs --fetch
 
       - name: Format check
         if: inputs.ci_required
