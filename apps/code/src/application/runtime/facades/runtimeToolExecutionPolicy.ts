@@ -1,4 +1,4 @@
-import { canonicalizeModelProvider } from "@ku0/code-runtime-host-contract/codeRuntimeRpcCompat";
+import { canonicalizeModelProvider } from "@ku0/code-runtime-host-contract";
 
 export type RuntimeExecutionProvider = "openai" | "anthropic" | "google" | "local" | "unknown";
 

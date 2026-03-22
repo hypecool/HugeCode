@@ -1,4 +1,4 @@
-import { canonicalizeOAuthProviderId } from "@ku0/code-runtime-host-contract/codeRuntimeRpcCompat";
+import { canonicalizeOAuthProviderId } from "@ku0/code-runtime-host-contract";
 import type { RuntimeProviderCatalogEntry } from "../../../contracts/runtime";
 import type {
   OAuthAccountSummary,

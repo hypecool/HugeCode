@@ -64,28 +64,41 @@ Collapse duplicated runtime-adjacent ownership into the canonical path while del
 - Deleted `packages/code-runtime-webmcp-client/src/webMcpInputSchemaValidationError.ts`
 - Removed the package subpath so schema-validation errors now come only from `@ku0/code-runtime-client`
 
+### Step 10. Runtime RPC helper de-compat
+
+- Moved provider canonicalization and method-not-found helper ownership into canonical `codeRuntimeRpc.ts`
+- Migrated runtime-client and app callers off `@ku0/code-runtime-host-contract/codeRuntimeRpcCompat`
+- Left `codeRuntimeRpcCompat.ts` with alias-focused responsibility only
+- Reduced active compat consumers to field-alias tests and legacy method alias handling
+
+### Step 11. Runtime RPC compat subpath deletion
+
+- Migrated all cross-package `codeRuntimeRpcCompat` imports to the package root
+- Removed the `@ku0/code-runtime-host-contract/codeRuntimeRpcCompat` export
+- Kept the remaining alias helpers available only through the canonical root entrypoint
+
 ## Next steps
 
-### Step 10. Collapse mission-control snapshot/projection fallback logic
+### Step 12. Collapse mission-control snapshot/projection fallback logic
 
 Target:
 
 - shared workspace shell reads kernel projection and runtime snapshot truth only
 - remove local projection fallback logic that reconstructs equivalent truth from older shapes
 
-### Step 11. Reduce Tauri bridge surface to host adaptation only
+### Step 13. Reduce Tauri bridge surface to host adaptation only
 
 Target:
 
 - remove runtime-domain normalization from Tauri adapters where canonical contract types already exist
 - keep only transport adaptation and platform-specific error mapping
 
-### Step 12. Delete the remaining broad compat helpers
+### Step 14. Delete the remaining broad compat helpers
 
 Target:
 
-- narrow `codeRuntimeRpcCompat` to frozen wire-field aliasing only
-- remove convenience/domain helpers that still let clients depend on compatibility behavior
+- reduce `codeRuntimeRpcCompat` to the minimum wire-alias surface still enforced by tests
+- delete legacy method alias handling once no runtime path needs it
 
 ## Validation gates
 

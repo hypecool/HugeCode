@@ -3,27 +3,27 @@ import { readFileSync } from "node:fs";
 
 import {
   buildCodeRuntimeRpcSpec,
+  canonicalizeModelPool,
+  canonicalizeModelProvider,
+  canonicalizeOAuthProviderId,
   CODE_RUNTIME_RPC_CONTRACT_VERSION,
   CODE_RUNTIME_RPC_ERROR_CODES,
   CODE_RUNTIME_RPC_EXECUTION_GRAPH_FIELDS,
   CODE_RUNTIME_RPC_FEATURES,
   CODE_RUNTIME_RPC_METHOD_LIST,
   CODE_RUNTIME_RPC_METHODS,
+  CODE_RUNTIME_PROVIDER_ALIAS_REGISTRY,
   CODE_RUNTIME_RPC_TRANSPORTS,
   computeCodeRuntimeRpcMethodSetHash,
+  inferCodeRuntimeRpcMethodNotFoundCodeFromMessage,
+  isCodeRuntimeRpcMethodNotFoundErrorCode,
 } from "./codeRuntimeRpc";
 import {
   buildCodeRuntimeRpcCompatFields,
   cloneWithCodeRuntimeRpcCompatAliases,
-  CODE_RUNTIME_PROVIDER_ALIAS_REGISTRY,
   CODE_RUNTIME_RPC_COMPAT_FIELD_ALIASES,
   CODE_RUNTIME_RPC_COMPAT_FIELD_LIFECYCLE,
   CODE_RUNTIME_RPC_METHOD_LEGACY_ALIASES,
-  canonicalizeModelPool,
-  canonicalizeModelProvider,
-  canonicalizeOAuthProviderId,
-  inferCodeRuntimeRpcMethodNotFoundCodeFromMessage,
-  isCodeRuntimeRpcMethodNotFoundErrorCode,
   listCodeRuntimeRpcMethodCandidates,
 } from "./codeRuntimeRpcCompat";
 import type {

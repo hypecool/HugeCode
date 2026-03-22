@@ -1,3 +1,4 @@
+import { isCodeRuntimeRpcMethodNotFoundErrorCode } from "@ku0/code-runtime-host-contract";
 import type {
   RuntimeSessionDeleteRequest,
   RuntimeSessionExportRequest,
@@ -5,7 +6,6 @@ import type {
   RuntimeSessionImportRequest,
   RuntimeSessionImportResponse,
 } from "@ku0/code-runtime-host-contract";
-import { isCodeRuntimeRpcMethodNotFoundErrorCode } from "@ku0/code-runtime-host-contract/codeRuntimeRpcCompat";
 
 import { toRuntimeRpcInvocationError } from "@ku0/code-runtime-client/runtimeClientErrorUtils";
 import type { RuntimeClient } from "./runtimeClient";

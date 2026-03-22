@@ -2,8 +2,8 @@ import {
   CODE_RUNTIME_RPC_EMPTY_PARAMS,
   CODE_RUNTIME_RPC_METHODS,
   type CodeRuntimeRpcMethod,
+  isCodeRuntimeRpcMethodNotFoundErrorCode,
 } from "@ku0/code-runtime-host-contract";
-import { isCodeRuntimeRpcMethodNotFoundErrorCode } from "@ku0/code-runtime-host-contract/codeRuntimeRpcCompat";
 import { invoke } from "@tauri-apps/api/core";
 import {
   assertRuntimeRpcCanonicalMethodsSupported,

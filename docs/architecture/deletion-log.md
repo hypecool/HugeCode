@@ -60,3 +60,14 @@ Path count reduced:
 - Deleted `packages/code-runtime-webmcp-client/src/webMcpInputSchemaValidationError.ts`
 - Removed the `@ku0/code-runtime-webmcp-client/webMcpInputSchemaValidationError` subpath export
 - Migrated the last active app consumer to `@ku0/code-runtime-client/webMcpInputSchemaValidationError`
+
+### Step 10. Runtime RPC helper de-compat
+
+- Moved provider canonicalization helpers into `packages/code-runtime-host-contract/src/codeRuntimeRpc.ts`
+- Moved method-not-found helper ownership into `packages/code-runtime-host-contract/src/codeRuntimeRpc.ts`
+- Migrated runtime-client and app callers off the `codeRuntimeRpcCompat` subpath for those helpers
+
+### Step 11. Runtime RPC compat subpath deletion
+
+- Removed the `@ku0/code-runtime-host-contract/codeRuntimeRpcCompat` package export
+- Migrated remaining cross-package compat imports to the canonical root entrypoint

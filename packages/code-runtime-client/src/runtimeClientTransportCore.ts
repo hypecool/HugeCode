@@ -3,8 +3,8 @@ import {
   type CodeRuntimeRpcMethod,
   type CodeRuntimeRpcRequestPayloadByMethod,
   type CodeRuntimeRpcResponsePayloadByMethod,
+  isCodeRuntimeRpcMethodNotFoundErrorCode,
 } from "@ku0/code-runtime-host-contract";
-import { isCodeRuntimeRpcMethodNotFoundErrorCode } from "@ku0/code-runtime-host-contract/codeRuntimeRpcCompat";
 import { RuntimeRpcInvocationError, toRuntimeRpcInvocationError } from "./runtimeClientErrorUtils";
 import type {
   RuntimeRpcCandidateResolver,

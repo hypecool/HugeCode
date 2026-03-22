@@ -31,7 +31,7 @@
 ## Compatibility Surfaces
 
 - `codeRuntimeRpcCompat`
-  Still public and broad.
+  Narrowed and no longer exported as a dedicated package subpath. Active runtime and app code no longer depend on its provider canonicalization or method-not-found helpers. Remaining surface is root-re-exported field aliasing, legacy method aliases, and compat-focused tests.
 - deprecated Tauri aggregation surfaces are blocked by tests, which is good, but their existence shows the repo is still carrying compatibility cleanup work.
 
 ## Suspicious Layering

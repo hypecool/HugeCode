@@ -16,10 +16,6 @@
       "types": "./src/codeRuntimeRpc.ts",
       "default": "./src/codeRuntimeRpc.ts"
     },
-    "./codeRuntimeRpcCompat": {
-      "types": "./src/codeRuntimeRpcCompat.ts",
-      "default": "./src/codeRuntimeRpcCompat.ts"
-    },
     "./hugeCodeMissionControl": {
       "types": "./src/hugeCodeMissionControl.ts",
       "default": "./src/hugeCodeMissionControl.ts"

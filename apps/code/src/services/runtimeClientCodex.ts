@@ -1,3 +1,4 @@
+import { isCodeRuntimeRpcMethodNotFoundErrorCode } from "@ku0/code-runtime-host-contract";
 import type {
   RuntimeCodexDoctorRequest,
   RuntimeCodexDoctorResponse,
@@ -7,7 +8,6 @@ import type {
   RuntimeMcpServerStatusListRequest,
   RuntimeMcpServerStatusListResponse,
 } from "@ku0/code-runtime-host-contract";
-import { isCodeRuntimeRpcMethodNotFoundErrorCode } from "@ku0/code-runtime-host-contract/codeRuntimeRpcCompat";
 
 import { logger } from "./logger";
 import { toRuntimeRpcInvocationError } from "@ku0/code-runtime-client/runtimeClientErrorUtils";

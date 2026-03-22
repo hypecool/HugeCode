@@ -1,9 +1,9 @@
+import { isCodeRuntimeRpcMethodNotFoundErrorCode } from "@ku0/code-runtime-host-contract";
 import type {
   RuntimeDiagnosticsExportRequest,
   RuntimeDiagnosticsExportResponse,
   RuntimeDiagnosticsRedactionLevel,
 } from "@ku0/code-runtime-host-contract";
-import { isCodeRuntimeRpcMethodNotFoundErrorCode } from "@ku0/code-runtime-host-contract/codeRuntimeRpcCompat";
 
 import { logger } from "./logger";
 import { toRuntimeRpcInvocationError } from "@ku0/code-runtime-client/runtimeClientErrorUtils";

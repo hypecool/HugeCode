@@ -1,7 +1,7 @@
 import {
   canonicalizeModelPool,
   canonicalizeOAuthProviderId,
-} from "@ku0/code-runtime-host-contract/codeRuntimeRpcCompat";
+} from "@ku0/code-runtime-host-contract";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { buildMissionDraftFromThreadState } from "../../../application/runtime/facades/runtimeMissionDraftFacade";

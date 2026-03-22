@@ -9,9 +9,6 @@ const codeRuntimeHostContractEntry = fileURLToPath(
 const codeRuntimeHostContractCanonicalEntry = fileURLToPath(
   new URL("../../packages/code-runtime-host-contract/src/codeRuntimeRpc.ts", import.meta.url)
 );
-const codeRuntimeHostContractCompatEntry = fileURLToPath(
-  new URL("../../packages/code-runtime-host-contract/src/codeRuntimeRpcCompat.ts", import.meta.url)
-);
 const designSystemEntry = fileURLToPath(
   new URL("../../packages/design-system/src/index.ts", import.meta.url)
 );
@@ -83,10 +80,6 @@ export default defineConfig({
       {
         find: /^@ku0\/code-runtime-host-contract\/codeRuntimeRpc$/,
         replacement: codeRuntimeHostContractCanonicalEntry,
-      },
-      {
-        find: /^@ku0\/code-runtime-host-contract\/codeRuntimeRpcCompat$/,
-        replacement: codeRuntimeHostContractCompatEntry,
       },
       {
         find: /^@ku0\/code-runtime-host-contract$/,

@@ -114,6 +114,7 @@ Client-side storage and fallback state also still exist:
 ## Compatibility Layers Still Active
 
 - `packages/code-runtime-host-contract/src/codeRuntimeRpcCompat.ts`
+  No longer has a dedicated public package subpath. Active path no longer depends on provider canonicalization or method-not-found helpers from this module. Remaining use is root re-exported wire-field aliasing and contract-compat tests.
 - app runtime and Tauri ports/tests explicitly guard against deprecated compat ports, which confirms the repo is still actively unwinding older surfaces
 
 ## Domain Logic Outside Runtime

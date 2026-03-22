@@ -1,8 +1,8 @@
+import { isCodeRuntimeRpcMethodNotFoundErrorCode } from "@ku0/code-runtime-host-contract";
 import type {
   RuntimeSecurityPreflightDecision,
   RuntimeSecurityPreflightRequest,
 } from "@ku0/code-runtime-host-contract";
-import { isCodeRuntimeRpcMethodNotFoundErrorCode } from "@ku0/code-runtime-host-contract/codeRuntimeRpcCompat";
 
 import { toRuntimeRpcInvocationError } from "@ku0/code-runtime-client/runtimeClientErrorUtils";
 import type { RuntimeClient } from "./runtimeClient";

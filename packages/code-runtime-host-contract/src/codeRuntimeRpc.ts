@@ -1990,6 +1990,91 @@ export type CanonicalModelProvider = "openai" | "anthropic" | "google" | "local"
 
 export type CanonicalModelPool = "codex" | "claude" | "gemini" | "auto";
 
+type RuntimeProviderAliasSpec = {
+  providerId: CanonicalModelProvider;
+  pool: CanonicalModelPool | null;
+  oauthProviderId: OAuthProviderId | null;
+  aliases: readonly string[];
+};
+
+export const CODE_RUNTIME_PROVIDER_ALIAS_REGISTRY = Object.freeze([
+  {
+    providerId: "openai",
+    pool: "codex",
+    oauthProviderId: "codex",
+    aliases: ["openai", "codex", "openai-codex"],
+  },
+  {
+    providerId: "anthropic",
+    pool: "claude",
+    oauthProviderId: "claude_code",
+    aliases: ["anthropic", "claude", "claude_code", "claude-code"],
+  },
+  {
+    providerId: "google",
+    pool: "gemini",
+    oauthProviderId: "gemini",
+    aliases: ["google", "gemini", "antigravity", "anti-gravity", "gemini-antigravity"],
+  },
+  {
+    providerId: "local",
+    pool: null,
+    oauthProviderId: null,
+    aliases: ["local"],
+  },
+  {
+    providerId: "unknown",
+    pool: null,
+    oauthProviderId: null,
+    aliases: ["unknown"],
+  },
+] satisfies readonly RuntimeProviderAliasSpec[]);
+
+function normalizeCodeRuntimeAlias(value: string | null | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  return normalized.length > 0 ? normalized : null;
+}
+
+function resolveRuntimeProviderAliasSpec(
+  value: string | null | undefined
+): RuntimeProviderAliasSpec | null {
+  const normalized = normalizeCodeRuntimeAlias(value);
+  if (!normalized) {
+    return null;
+  }
+  return (
+    CODE_RUNTIME_PROVIDER_ALIAS_REGISTRY.find((entry) => entry.aliases.includes(normalized)) ?? null
+  );
+}
+
+export function canonicalizeOAuthProviderId(
+  provider: string | null | undefined
+): OAuthProviderId | null {
+  return resolveRuntimeProviderAliasSpec(provider)?.oauthProviderId ?? null;
+}
+
+export function canonicalizeModelProvider(
+  provider: ModelProvider | string | null | undefined
+): CanonicalModelProvider | null {
+  return resolveRuntimeProviderAliasSpec(provider)?.providerId ?? null;
+}
+
+export function canonicalizeModelPool(
+  pool: ModelPool | string | null | undefined
+): CanonicalModelPool | null {
+  const normalized = normalizeCodeRuntimeAlias(pool);
+  if (!normalized) {
+    return null;
+  }
+  if (normalized === "auto") {
+    return "auto";
+  }
+  return resolveRuntimeProviderAliasSpec(pool)?.pool ?? null;
+}
+
 export type RuntimeProviderCatalogEntry = {
   providerId: CanonicalModelProvider | (string & {});
   displayName: string;
@@ -3677,6 +3762,46 @@ export const CODE_RUNTIME_RPC_ERROR_CODES = {
   INVALID_PARAMS: "INVALID_PARAMS",
   INTERNAL_ERROR: "INTERNAL_ERROR",
 } as const;
+
+const METHOD_NOT_FOUND_ERROR_CODES: ReadonlySet<string> = new Set([
+  CODE_RUNTIME_RPC_ERROR_CODES.METHOD_NOT_FOUND,
+  "METHOD_NOT_FOUND_ERROR",
+  "METHOD-NOT-FOUND",
+  "method_not_found",
+  "method-not-found",
+]);
+
+const METHOD_NOT_FOUND_MESSAGE_PATTERNS = [
+  /^unsupported rpc method:/i,
+  /\bmethod not found\b/i,
+  /\bunknown method\b/i,
+  /\bunknown command\b/i,
+  /\bcommand .* not found\b/i,
+  /\binvalid args .* command .* not found\b/i,
+];
+
+export function isCodeRuntimeRpcMethodNotFoundErrorCode(code: unknown): boolean {
+  if (typeof code !== "string") {
+    return false;
+  }
+  return METHOD_NOT_FOUND_ERROR_CODES.has(code.trim());
+}
+
+export function inferCodeRuntimeRpcMethodNotFoundCodeFromMessage(
+  message: unknown
+): typeof CODE_RUNTIME_RPC_ERROR_CODES.METHOD_NOT_FOUND | null {
+  if (typeof message !== "string") {
+    return null;
+  }
+  const trimmed = message.trim();
+  if (trimmed.length === 0) {
+    return null;
+  }
+  if (!METHOD_NOT_FOUND_MESSAGE_PATTERNS.some((pattern) => pattern.test(trimmed))) {
+    return null;
+  }
+  return CODE_RUNTIME_RPC_ERROR_CODES.METHOD_NOT_FOUND;
+}
 
 export type CodeRuntimeRpcErrorCode =
   (typeof CODE_RUNTIME_RPC_ERROR_CODES)[keyof typeof CODE_RUNTIME_RPC_ERROR_CODES];

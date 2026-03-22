@@ -1,11 +1,11 @@
 import {
+  CODE_RUNTIME_RPC_COMPAT_FIELD_ALIASES,
   CODE_RUNTIME_RPC_CONTRACT_VERSION,
   CODE_RUNTIME_RPC_ERROR_CODES,
   CODE_RUNTIME_RPC_FEATURES,
   CODE_RUNTIME_RPC_FREEZE_EFFECTIVE_AT,
   computeCodeRuntimeRpcMethodSetHash,
 } from "@ku0/code-runtime-host-contract";
-import { CODE_RUNTIME_RPC_COMPAT_FIELD_ALIASES } from "@ku0/code-runtime-host-contract/codeRuntimeRpcCompat";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.fn();

@@ -1,7 +1,4 @@
-import {
-  canonicalizeModelPool,
-  canonicalizeModelProvider,
-} from "@ku0/code-runtime-host-contract/codeRuntimeRpcCompat";
+import { canonicalizeModelPool, canonicalizeModelProvider } from "@ku0/code-runtime-host-contract";
 import type { ModelOption } from "../../../types";
 
 const MODEL_SOURCE_ALIASES: Record<string, NonNullable<ModelOption["source"]>> = {
