@@ -114,7 +114,7 @@ Client-side storage and fallback state also still exist:
 - `packages/code-runtime-webmcp-client/src/webMcpInputSchemaValidationError.ts`
   Survives only as a compatibility re-export of the canonical runtime-client implementation.
 - `packages/code-runtime-host-contract`
-  Still exports both canonical and compatibility type families publicly.
+  Still exports both canonical and compatibility type families publicly, even though `codeRuntimeRpc.ts` now consumes the `HugeCode*` aliases internally.
 
 ## Compatibility Layers Still Active
 
