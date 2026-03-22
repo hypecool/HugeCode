@@ -33,19 +33,13 @@ Collapse duplicated runtime-adjacent ownership into the canonical path while del
 - Collapsed `packages/code-runtime-webmcp-client/src/webMcpInputSchemaValidationError.ts`
   into a compatibility re-export of the canonical runtime-client implementation
 
+### Step 5. Final app-local runtime client type shim deletion
+
+- Folded the `RuntimeClient<AppSettings>` specialization into `apps/code/src/services/runtimeClient.ts`
+- Migrated all remaining local consumers off `apps/code/src/services/runtimeClientTypes.ts`
+- Deleted `apps/code/src/services/runtimeClientTypes.ts`
+
 ## Next steps
-
-### Step 5. Delete the last app-local runtime client type shim
-
-Target:
-
-- `apps/code/src/services/runtimeClientTypes.ts`
-- any remaining app-local aliases that exist only to pin `AppSettings`
-
-Rule:
-
-- if the app file is only a compatibility re-export, migrate imports and delete it
-- if the app file still diverges, move the canonical version into the package first, then delete the app copy
 
 ### Step 6. Collapse mission-control snapshot/projection fallback logic
 

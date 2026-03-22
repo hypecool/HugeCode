@@ -25,7 +25,7 @@ import {
   type RuntimeRpcParams,
   type RuntimeRpcRawInvoker,
 } from "@ku0/code-runtime-client/runtimeClientTransportShared";
-import type { RuntimeClientMode } from "./runtimeClientTypes";
+import type { RuntimeClientMode } from "./runtimeClient";
 import { subscribeScopedRuntimeUpdatedEvents } from "./runtimeUpdatedEvents";
 import { invokeWebRuntimeRawAttempt } from "./runtimeClientWebHttpTransport";
 import {

@@ -27,4 +27,13 @@ Path count reduced:
 
 Residual bridges left intentionally:
 
-- `apps/code/src/services/runtimeClientTypes.ts` remains because it still instantiates the shared generic `RuntimeClient` with app-local `AppSettings`
+- none in `apps/code/src/services` for package-owned runtime/WebMCP helper contracts
+
+### Step 5. Final app-local runtime-client type shim deletion
+
+- Deleted `apps/code/src/services/runtimeClientTypes.ts`
+- Folded the app-specific `RuntimeClient<AppSettings>` specialization into `apps/code/src/services/runtimeClient.ts`
+
+Path count reduced:
+
+- `apps/code/src/services` runtime/WebMCP shim files: 1 more removed

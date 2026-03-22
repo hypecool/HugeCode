@@ -1,4 +1,4 @@
-import type { RuntimeClient } from "./runtimeClientTypes";
+import type { RuntimeClient } from "./runtimeClient";
 
 type RejectUnavailableFn = <T>(operation: string) => Promise<T>;
 
