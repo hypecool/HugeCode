@@ -60,6 +60,29 @@ export function ensureSentryInitialized() {
   return sentryInitializationPromise;
 }
 
+function scheduleSentryInitialization() {
+  if (typeof window === "undefined") {
+    void ensureSentryInitialized();
+    return noop;
+  }
+
+  if (typeof window.requestIdleCallback === "function") {
+    const idleHandle = window.requestIdleCallback(() => {
+      void ensureSentryInitialized();
+    });
+    return () => {
+      window.cancelIdleCallback?.(idleHandle);
+    };
+  }
+
+  const timeoutHandle = window.setTimeout(() => {
+    void ensureSentryInitialized();
+  }, 0);
+  return () => {
+    window.clearTimeout(timeoutHandle);
+  };
+}
+
 export function installMobileZoomGesturePrevention() {
   if (!isMobilePlatform() || typeof document === "undefined") {
     return noop;
@@ -162,9 +185,10 @@ export function RuntimeBootstrapEffects() {
     void applyRuntimeFlags();
     const cleanupZoom = installMobileZoomGesturePrevention();
     const cleanupViewport = installMobileViewportHeightSync();
-    void ensureSentryInitialized();
+    const cleanupSentry = scheduleSentryInitialization();
 
     return () => {
+      cleanupSentry();
       cleanupViewport();
       cleanupZoom();
     };
