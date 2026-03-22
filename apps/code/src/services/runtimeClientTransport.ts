@@ -10,7 +10,7 @@ import {
   getErrorMessage,
   RuntimeRpcInvocationError,
   toRuntimeRpcInvocationError,
-} from "./runtimeClientErrorUtils";
+} from "@ku0/code-runtime-client/runtimeClientErrorUtils";
 import { detectRuntimeMode } from "./runtimeClientMode";
 import { createRpcRuntimeClient } from "./runtimeClientRpcClient";
 import {
@@ -26,11 +26,11 @@ import {
   type RuntimeRpcInvoker,
   type RuntimeRpcParams,
   type RuntimeRpcRawInvoker,
-} from "./runtimeClientTransportShared";
+} from "@ku0/code-runtime-client/runtimeClientTransportShared";
 export {
   RuntimeRpcMethodUnsupportedError,
   RuntimeUnavailableError,
-} from "./runtimeClientTransportShared";
+} from "@ku0/code-runtime-client/runtimeClientTransportShared";
 import type { RuntimeCapabilitiesSummary, RuntimeClient } from "./runtimeClientTypes";
 import { createUnavailableRuntimeClient } from "./runtimeClientUnavailable";
 import { invokeWebRuntimeRaw } from "./runtimeClientWebTransport";

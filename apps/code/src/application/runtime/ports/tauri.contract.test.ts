@@ -333,7 +333,7 @@ describe("tauri runtime port contract", () => {
 
   it("removes legacy run-first approval names from shared and app-facing control surfaces", () => {
     const appSurfaceSource = readFileSync(
-      path.resolve(import.meta.dirname, "../../../services/webMcpBridgeTypes.ts"),
+      path.resolve(import.meta.dirname, "../types/webMcpBridge.ts"),
       "utf8"
     );
     const sharedSurfaceSource = readFileSync(
@@ -348,7 +348,7 @@ describe("tauri runtime port contract", () => {
       "utf8"
     );
 
-    expect(appSurfaceSource).toContain("submitTaskApprovalDecision");
+    expect(appSurfaceSource).toContain("@ku0/code-runtime-webmcp-client/webMcpBridgeTypes");
     expect(appSurfaceSource).not.toContain("checkpointRunApproval");
     expect(sharedSurfaceSource).toContain("submitTaskApprovalDecision");
     expect(sharedSurfaceSource).not.toContain("checkpointRunApproval");

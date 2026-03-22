@@ -23,40 +23,45 @@ Collapse duplicated runtime-adjacent ownership into the canonical path while del
 - Moved the canonical `RuntimeClient` interface into `@ku0/code-runtime-client`
 - Converted `apps/code/src/services/runtimeClientTypes.ts` into an app-local generic instantiation shim
 
+### Step 4. App-local runtime helper shim deletion
+
+- Migrated `apps/code` runtime/WebMCP helper imports from local service shims to
+  `@ku0/code-runtime-client` and `@ku0/code-runtime-webmcp-client`
+- Deleted 15 app-local shim files from `apps/code/src/services`
+- Restored `application/runtime/ports/*` as the frontend boundary instead of
+  letting package imports leak through the runtime infrastructure aggregator
+- Collapsed `packages/code-runtime-webmcp-client/src/webMcpInputSchemaValidationError.ts`
+  into a compatibility re-export of the canonical runtime-client implementation
+
 ## Next steps
 
-### Step 4. Delete remaining app-local runtime-client helpers that are already package-owned
+### Step 5. Delete the last app-local runtime client type shim
 
 Target:
 
-- `apps/code/src/services/runtimeClientCapabilitiesContract.ts`
-- `apps/code/src/services/runtimeClientErrorUtils.ts`
-- `apps/code/src/services/runtimeClientMethodSets.ts`
-- `apps/code/src/services/runtimeClientWebRequestTimeouts.ts`
-- `apps/code/src/services/runtimeClientWebRetryUtils.ts`
-- `apps/code/src/services/runtimeEvent*`
-- remaining WebMCP schema/helper shims
+- `apps/code/src/services/runtimeClientTypes.ts`
+- any remaining app-local aliases that exist only to pin `AppSettings`
 
 Rule:
 
 - if the app file is only a compatibility re-export, migrate imports and delete it
 - if the app file still diverges, move the canonical version into the package first, then delete the app copy
 
-### Step 5. Collapse mission-control snapshot/projection fallback logic
+### Step 6. Collapse mission-control snapshot/projection fallback logic
 
 Target:
 
 - shared workspace shell reads kernel projection and runtime snapshot truth only
 - remove local projection fallback logic that reconstructs equivalent truth from older shapes
 
-### Step 6. Reduce Tauri bridge surface to host adaptation only
+### Step 7. Reduce Tauri bridge surface to host adaptation only
 
 Target:
 
 - remove runtime-domain normalization from Tauri adapters where canonical contract types already exist
 - keep only transport adaptation and platform-specific error mapping
 
-### Step 7. Shrink public compat surface
+### Step 8. Shrink public compat surface
 
 Target:
 

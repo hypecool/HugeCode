@@ -111,12 +111,10 @@ Client-side storage and fallback state also still exist:
 
 ### Duplicated or drifting
 
-- `apps/code/src/services/webMcpBridgeTypes.ts`
-  App-local WebMCP/runtime-agent type surface duplicated from `packages/code-runtime-webmcp-client`.
 - `apps/code/src/services/runtimeClientTypes.ts`
-  App-local runtime client type surface adjacent to `packages/code-runtime-client`.
-- `packages/code-workspace-client`
-  Still uses older `HypeCode*` mission-control aliases while app/runtime code has already moved toward `HugeCode*`.
+  App-local runtime client type instantiation still exists adjacent to `packages/code-runtime-client`.
+- `packages/code-runtime-webmcp-client/src/webMcpInputSchemaValidationError.ts`
+  Survives only as a compatibility re-export of the canonical runtime-client implementation.
 - `packages/code-runtime-host-contract`
   Still exports both canonical and compatibility type families publicly.
 
@@ -137,7 +135,7 @@ Any part that reconstructs execution truth instead of reading runtime truth is a
 
 ## Suspicious Dependency and Packaging Edges
 
-- `apps/code` depends on `@ku0/code-runtime-client` and `@ku0/code-runtime-webmcp-client`, but still ships neighboring app-local implementations for the same subsystems.
+- `apps/code` now routes package-owned runtime/WebMCP helper imports directly to `@ku0/code-runtime-client` and `@ku0/code-runtime-webmcp-client`, but still keeps a local `runtimeClientTypes.ts` generic-instantiation shim.
 - Shared workspace-client code still imports older mission-control aliases directly from the contract package.
 - The repo defines package-boundary rules in `turbo.json`, but the currently installed dependency state was not ready to run `pnpm check:circular`, so circular-dependency status still needs confirmation after install.
 
