@@ -23,10 +23,6 @@
     "./hugeCodeMissionControl": {
       "types": "./src/hugeCodeMissionControl.ts",
       "default": "./src/hugeCodeMissionControl.ts"
-    },
-    "./hypeCodeMissionControl": {
-      "types": "./src/hypeCodeMissionControl.ts",
-      "default": "./src/hypeCodeMissionControl.ts"
     }
   },
   "scripts": {
