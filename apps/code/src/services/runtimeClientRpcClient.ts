@@ -81,6 +81,7 @@ import type {
   TurnSendRequest,
 } from "../contracts/runtime";
 import type { AppSettings } from "../types";
+import type { RuntimeClient as SharedRuntimeClient } from "@ku0/code-runtime-client/runtimeClientTypes";
 import {
   normalizeLiveSkillExecuteRequest,
   validateLiveSkillExecuteRequest,
@@ -94,7 +95,6 @@ import {
   THREAD_LIVE_RPC_METHODS,
 } from "./runtimeClientRpcMethods";
 import { adaptRuntimeRpcPayload, withCanonicalFields } from "./runtimeClientRpcPayloads";
-import type { RuntimeClient } from "./runtimeClient";
 import {
   invokeRuntimeExtensionRpc,
   normalizeNullableTerminalSessionSummary,
@@ -102,6 +102,8 @@ import {
   normalizeTerminalStatus,
   type RuntimeRpcInvoker,
 } from "./runtimeClientRpcHelpers";
+
+type RuntimeClient = SharedRuntimeClient<AppSettings>;
 
 export function createRpcRuntimeClient(invokeRpc: RuntimeRpcInvoker): RuntimeClient {
   const client: RuntimeClient = {

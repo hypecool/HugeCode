@@ -1,4 +1,7 @@
-import type { RuntimeClient } from "./runtimeClient";
+import type { RuntimeClient as SharedRuntimeClient } from "@ku0/code-runtime-client/runtimeClientTypes";
+import type { AppSettings } from "../types";
+
+type RuntimeClient = SharedRuntimeClient<AppSettings>;
 
 type RejectUnavailableFn = <T>(operation: string) => Promise<T>;
 
