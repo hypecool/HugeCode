@@ -13,10 +13,10 @@
     "dev": "node ./node_modules/vite/bin/vite.js --port 5187",
     "build": "node ./node_modules/vite/bin/vite.js build",
     "preview": "node ./node_modules/vite/bin/vite.js preview --port 4187",
-    "lint": "pnpm -C ../.. exec oxlint apps/code/src",
+    "lint": "oxlint src",
     "test": "vitest run --config vitest.config.ts",
-    "test:component": "pnpm -C ../.. exec vitest run --config apps/code/vitest.browser.config.ts",
-    "test:component:watch": "pnpm -C ../.. exec vitest --config apps/code/vitest.browser.config.ts",
+    "test:component": "vitest run --config vitest.browser.config.ts",
+    "test:component:watch": "vitest --config vitest.browser.config.ts",
     "typecheck": "tsc --noEmit",
     "test:worker:quick": "vitest run src/services/workerQuickGate.test.ts"
   },
