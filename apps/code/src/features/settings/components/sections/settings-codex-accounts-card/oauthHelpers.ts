@@ -1,5 +1,5 @@
 import { isTauri } from "../../../../../application/runtime/ports/tauriCore";
-import { openUrl } from "../../../../../application/runtime/ports/tauriOpener";
+import { openUrl } from "../../../../../application/runtime/facades/desktopHostFacade";
 import {
   type OAuthAccountSummary,
   type OAuthPoolSummary,
