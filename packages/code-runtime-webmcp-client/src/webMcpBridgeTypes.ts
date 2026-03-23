@@ -474,6 +474,7 @@ export type RuntimeAgentTaskStartInput = {
   requestId?: string;
   title?: string | null;
   taskSource?: HugeCodeTaskSourceSummary | null;
+  executionProfileId?: string | null;
   reviewProfileId?: string | null;
   validationPresetId?: string | null;
   instruction: string;
