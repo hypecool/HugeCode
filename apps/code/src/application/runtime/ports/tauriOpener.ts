@@ -1,3 +1,4 @@
+import type { DesktopShellCapability } from "@ku0/code-platform-interfaces";
 import { getDesktopHostBridge } from "./desktopHostBridge";
 
 type TauriOpenerModule = {
@@ -23,11 +24,15 @@ async function loadTauriOpener() {
   return cachedTauriOpenerPromise;
 }
 
+function resolveDesktopShellCapability(): DesktopShellCapability | null {
+  return getDesktopHostBridge()?.shell ?? null;
+}
+
 export async function openUrl(url: string) {
-  const desktopHostBridge = getDesktopHostBridge();
   try {
-    const openResult = await desktopHostBridge?.shell?.openExternalUrl?.(url);
-    if (desktopHostBridge?.shell?.openExternalUrl && openResult !== false) {
+    const desktopShell = resolveDesktopShellCapability();
+    const openResult = await desktopShell?.openExternalUrl?.(url);
+    if (desktopShell?.openExternalUrl && openResult !== false) {
       return;
     }
   } catch {
@@ -51,10 +56,10 @@ export async function openUrl(url: string) {
 }
 
 export async function revealItemInDir(path: string) {
-  const desktopHostBridge = getDesktopHostBridge();
   try {
-    const revealResult = await desktopHostBridge?.shell?.revealItemInDir?.(path);
-    if (desktopHostBridge?.shell?.revealItemInDir && revealResult !== false) {
+    const desktopShell = resolveDesktopShellCapability();
+    const revealResult = await desktopShell?.revealItemInDir?.(path);
+    if (desktopShell?.revealItemInDir && revealResult !== false) {
       return;
     }
   } catch {
