@@ -2,6 +2,7 @@
 
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import type { WorkspaceInfo } from "../../../types";
 import {
   askMock,
   baseSettings,
@@ -119,10 +120,18 @@ describe("SettingsView Codex overrides", () => {
         onDownloadDictationModel={vi.fn()}
         onCancelDictationDownload={vi.fn()}
         onRemoveDictationModel={vi.fn()}
+        initialSection="projects"
       />
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Delete group" }));
+    await screen.findByText(
+      "Groups",
+      { selector: '[data-settings-field-group-title="true"]' },
+      { timeout: 5_000 }
+    );
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Delete group" }, { timeout: 5_000 })
+    );
 
     await waitFor(() => {
       expect(screen.getByText("dialog bridge unavailable")).toBeTruthy();
@@ -164,10 +173,16 @@ describe("SettingsView Codex overrides", () => {
         onDownloadDictationModel={vi.fn()}
         onCancelDictationDownload={vi.fn()}
         onRemoveDictationModel={vi.fn()}
+        initialSection="projects"
       />
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /Choose/ }));
+    await screen.findByText(
+      "Groups",
+      { selector: '[data-settings-field-group-title="true"]' },
+      { timeout: 5_000 }
+    );
+    fireEvent.click(await screen.findByRole("button", { name: /Choose/ }, { timeout: 5_000 }));
 
     await waitFor(() => {
       expect(screen.getByText("picker unavailable")).toBeTruthy();

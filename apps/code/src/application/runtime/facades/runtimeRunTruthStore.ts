@@ -380,12 +380,19 @@ export function useRuntimeRunTruth(input: {
     if (!enabled || !normalizedRunId) {
       return;
     }
+    let cancelled = false;
     queueMicrotask(() => {
+      if (cancelled) {
+        return;
+      }
       void primeRuntimeRunTruth({
         runId: normalizedRunId,
         workspaceId: normalizedWorkspaceId,
       });
     });
+    return () => {
+      cancelled = true;
+    };
   }, [enabled, normalizedRunId, normalizedWorkspaceId]);
 
   const subscribe = useCallback(

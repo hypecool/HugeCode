@@ -92,6 +92,17 @@ function sleep(ms) {
   });
 }
 
+async function waitForExit(pids, timeoutMs) {
+  const deadline = Date.now() + Math.max(0, timeoutMs);
+  while (Date.now() < deadline) {
+    if (pids.every((pid) => !isProcessAlive(pid))) {
+      return true;
+    }
+    await sleep(20);
+  }
+  return pids.every((pid) => !isProcessAlive(pid));
+}
+
 function killUnixPids(pids, signal) {
   for (const pid of pids) {
     try {
@@ -104,6 +115,7 @@ function killUnixPids(pids, signal) {
 
 export async function terminateProcessTree(rootPid, options = {}) {
   const graceMs = Math.max(0, options.graceMs ?? 750);
+  const forceKillWaitMs = Math.max(0, options.forceKillWaitMs ?? 250);
   if (!Number.isInteger(rootPid) || rootPid <= 0) {
     return;
   }
@@ -134,4 +146,7 @@ export async function terminateProcessTree(rootPid, options = {}) {
     return;
   }
   killUnixPids(surviving, "SIGKILL");
+  if (forceKillWaitMs > 0) {
+    await waitForExit(surviving, forceKillWaitMs);
+  }
 }

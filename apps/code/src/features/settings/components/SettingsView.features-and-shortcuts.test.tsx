@@ -242,7 +242,9 @@ describe("SettingsView Features", () => {
       screen.getByRole("button", { name: "Internal tools" }).getAttribute("aria-expanded")
     ).toBe("true");
     expect(screen.getByRole("button", { name: "Features" })).toBeTruthy();
-    expect(document.querySelector('[data-settings-section-frame="true"]')).toBeTruthy();
+    await waitFor(() => {
+      expect(document.querySelector('[data-settings-section-frame="true"]')).toBeTruthy();
+    });
     expect(
       await screen.findByText("Stable Features", {
         selector: '[data-settings-field-group-title="true"]',
@@ -1807,6 +1809,7 @@ describe("SettingsView Backend Pool", () => {
 
 describe("SettingsView Shortcuts", () => {
   it("renders shortcuts through the shared settings grammar", async () => {
+    cleanup();
     await renderSettled(
       <SharedSettingsView
         workspaceGroups={[]}
@@ -1840,7 +1843,9 @@ describe("SettingsView Shortcuts", () => {
       />
     );
 
-    expect(document.querySelector('[data-settings-section-frame="true"]')).toBeTruthy();
+    await waitFor(() => {
+      expect(document.querySelector('[data-settings-section-frame="true"]')).toBeTruthy();
+    });
     expect(
       await screen.findByText("Panels", { selector: '[data-settings-field-group-title="true"]' })
     ).toBeTruthy();
