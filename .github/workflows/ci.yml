@@ -48,8 +48,7 @@ jobs:
               - 'scripts/check-runtime-sot.mjs'
             desktop_runtime:
               - 'apps/code-tauri/**'
-              - 'package.json'
-              - 'pnpm-lock.yaml'
+              - 'apps/code-electron/**'
               - 'turbo.json'
               - '.github/actions/setup-rust-ci/**'
               - '.github/actions/cache-turbo/**'

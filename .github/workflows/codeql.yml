@@ -8,6 +8,12 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - "apps/**"
+      - "packages/**"
+      - "scripts/**"
+      - ".github/actions/**"
+      - ".github/workflows/codeql.yml"
   schedule:
     - cron: "20 3 * * 1"
 

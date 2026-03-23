@@ -9,22 +9,6 @@ import {
 
 const GIT_NODES_LAZY_BOUNDARY_TIMEOUT_MS = 60_000;
 
-function mockGitDiffViewerChunk() {
-  vi.doMock("../../../utils/diffsWorker", () => ({
-    workerFactory: () =>
-      ({
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        postMessage: vi.fn(),
-        terminate: vi.fn(),
-      }) satisfies Partial<Worker>,
-  }));
-
-  vi.doMock("../../../git/components/GitDiffViewer", () => ({
-    GitDiffViewer: () => <div data-testid="git-diff-viewer-chunk" />,
-  }));
-}
-
 function createGitOptions(overrides: Partial<LayoutNodesFieldRegistry> = {}): LayoutNodesOptions {
   return createLayoutNodesOptions({
     activeTab: "missions",
@@ -168,13 +152,14 @@ describe("buildGitNodes diff lazy boundary", () => {
     cleanup();
     vi.clearAllMocks();
     vi.doUnmock("../../../git/components/GitDiffViewer");
-    vi.doUnmock("../../../utils/diffsWorker");
   });
 
   it(
     "keeps the lightweight placeholder on empty diff state without loading the viewer chunk",
     async () => {
-      mockGitDiffViewerChunk();
+      vi.doMock("../../../git/components/GitDiffViewer", () => ({
+        GitDiffViewer: () => <div data-testid="git-diff-viewer-chunk" />,
+      }));
 
       const buildGitNodesImpl = await importBuildGitNodes();
       const nodes = buildGitNodesImpl(createGitOptions());
@@ -191,7 +176,9 @@ describe("buildGitNodes diff lazy boundary", () => {
   it(
     "loads the viewer chunk once actual diff payload exists",
     async () => {
-      mockGitDiffViewerChunk();
+      vi.doMock("../../../git/components/GitDiffViewer", () => ({
+        GitDiffViewer: () => <div data-testid="git-diff-viewer-chunk" />,
+      }));
 
       const buildGitNodesImpl = await importBuildGitNodes();
       const nodes = buildGitNodesImpl(

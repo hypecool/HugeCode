@@ -21,7 +21,11 @@ function openBrowserUrl(url: string) {
     return false;
   }
 
-  return window.open(url, "_blank", "noopener,noreferrer") !== null;
+  try {
+    return window.open(url, "_blank", "noopener,noreferrer") != null;
+  } catch {
+    return false;
+  }
 }
 
 export async function detectDesktopRuntimeHost() {
