@@ -1000,7 +1000,7 @@ async function runAppsCodeIncrementalTests(targets, validationCache) {
       );
     }
     writeStderrLine(
-      `[validate] apps/code incremental fallback: running \`pnpm -C apps/code test\` for ${uncoveredSourceTargets.length} uncovered source target${
+      `[validate] apps/code incremental fallback: running \`vitest run --config vitest.config.ts\` for ${uncoveredSourceTargets.length} uncovered source target${
         uncoveredSourceTargets.length === 1 ? "" : "s"
       }.`
     );

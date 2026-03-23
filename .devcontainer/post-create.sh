@@ -6,6 +6,8 @@ PERSIST_DIR="${WORKSPACE_DIR}/.devcontainer/local/codex"
 PERSISTED_CONFIG_PATH="${PERSIST_DIR}/config.toml"
 AGENTS_PERSIST_DIR="${WORKSPACE_DIR}/.devcontainer/local/agents"
 AGENTS_PERSISTED_SKILLS_DIR="${AGENTS_PERSIST_DIR}/skills"
+# Vendored skill snapshots are kept in-repo for repeatable/offline Codespaces;
+# preserve upstream content as-is and keep formatter/lint automation off this tree.
 AGENTS_SEED_SKILLS_DIR="${WORKSPACE_DIR}/.devcontainer/agents-skills"
 
 mkdir -p "${HOME}/.codex"
