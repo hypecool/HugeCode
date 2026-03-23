@@ -117,4 +117,11 @@ describe("desktopHostFacade", () => {
 
     await expect(openUrl("https://example.com")).resolves.toBe(false);
   });
+
+  it("treats missing browser window handles as a failed browser fallback", async () => {
+    openTauriUrlMock.mockResolvedValue(false);
+    window.open = vi.fn(() => undefined as unknown as Window | null) as typeof window.open;
+
+    await expect(openUrl("https://example.com")).resolves.toBe(false);
+  });
 });

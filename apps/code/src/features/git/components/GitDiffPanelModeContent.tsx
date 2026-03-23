@@ -26,20 +26,22 @@ function cx(...classNames: Array<string | false | null | undefined>) {
 
 async function openExternalIssueUrl(url: string) {
   try {
-    await openUrl(url);
-    return;
-  } catch (error) {
-    if (typeof window !== "undefined" && typeof window.open === "function") {
-      const opened = window.open(url, "_blank", "noopener,noreferrer");
-      if (opened) {
-        return;
-      }
+    const opened = await openUrl(url);
+    if (opened) {
+      return;
     }
+  } catch (error) {
     pushErrorToast({
       title: "Couldn't open issue link",
       message: error instanceof Error ? error.message : "Unable to open issue URL.",
     });
+    return;
   }
+
+  pushErrorToast({
+    title: "Couldn't open issue link",
+    message: "Unable to open issue URL.",
+  });
 }
 
 type GitMode = "diff" | "log" | "issues" | "prs";

@@ -38,7 +38,8 @@ describe("workspace client boundaries", () => {
     expect(appSource).toContain("./web/WorkspaceClientEntry");
     expect(appSource).not.toContain("./web/WorkspaceAppBridge");
     expect(entrySource).toContain("WorkspaceClientBoot");
-    expect(entrySource).toContain("./createDesktopWorkspaceClientBindings");
+    expect(entrySource).toContain("createDesktopWorkspaceClientHostBindings");
+    expect(entrySource).toContain("createWorkspaceClientBindings");
   });
 
   it("keeps the web adapter focused on binding composition instead of inline runtime transport", () => {
@@ -53,9 +54,7 @@ describe("workspace client boundaries", () => {
   });
 
   it("uses runtime and host domain slices instead of legacy empty binding buckets", () => {
-    const desktopSource = readRepoFile(
-      "apps/code/src/web/createDesktopWorkspaceClientBindings.tsx"
-    );
+    const desktopSource = readRepoFile("apps/code/src/web/WorkspaceClientEntry.tsx");
     const webSource = readRepoFile(
       "apps/code-web/app/components/createWebWorkspaceClientBindings.tsx"
     );
@@ -66,6 +65,8 @@ describe("workspace client boundaries", () => {
     expect(desktopSource).toContain("runtimeGateway:");
     expect(desktopSource).toContain("runtime:");
     expect(desktopSource).toContain("host:");
+    expect(desktopSource).toContain("createDesktopWorkspaceClientHostBindings");
+    expect(desktopSource).toContain("createWorkspaceClientBindings");
     expect(desktopSource).not.toContain("dialogs:");
     expect(desktopSource).not.toContain("opener:");
     expect(desktopSource).not.toContain("menu:");
