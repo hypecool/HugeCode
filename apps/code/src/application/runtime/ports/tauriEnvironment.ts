@@ -1,3 +1,6 @@
+import type { DesktopNotificationInput, DesktopSessionInfo } from "./desktopHostBridge";
+import { getDesktopHostBridge } from "./desktopHostBridge";
+
 type TauriCoreModule = {
   isTauri: () => boolean;
 };
@@ -24,6 +27,7 @@ type TauriRuntimeModules = {
 };
 
 type TauriModuleLoader = () => Promise<TauriRuntimeModules>;
+export type DesktopRuntimeHost = "browser" | "electron" | "tauri";
 
 async function defaultTauriModuleLoader(): Promise<TauriRuntimeModules> {
   const [app, core, opener, window] = await Promise.all([
@@ -54,6 +58,10 @@ async function loadTauriModules() {
 }
 
 export async function detectTauriRuntime() {
+  if (getDesktopHostBridge()) {
+    return false;
+  }
+
   try {
     const modules = await loadTauriModules();
     return modules.core?.isTauri?.() === true;
@@ -62,7 +70,25 @@ export async function detectTauriRuntime() {
   }
 }
 
+export async function detectDesktopRuntimeHost(): Promise<DesktopRuntimeHost> {
+  if (getDesktopHostBridge()) {
+    return "electron";
+  }
+
+  return (await detectTauriRuntime()) ? "tauri" : "browser";
+}
+
 export async function resolveWindowLabel(defaultLabel = "main") {
+  const desktopHostBridge = getDesktopHostBridge();
+  try {
+    const label = await desktopHostBridge?.window?.getLabel?.();
+    if (typeof label === "string" && label.length > 0) {
+      return label;
+    }
+  } catch {
+    // Fall through to the Tauri loader and then to the default value.
+  }
+
   try {
     const modules = await loadTauriModules();
     const label = modules.window?.getCurrentWindow?.().label;
@@ -73,6 +99,16 @@ export async function resolveWindowLabel(defaultLabel = "main") {
 }
 
 export async function resolveAppVersion() {
+  const desktopHostBridge = getDesktopHostBridge();
+  try {
+    const version = await desktopHostBridge?.app?.getVersion?.();
+    if (typeof version === "string" && version.length > 0) {
+      return version;
+    }
+  } catch {
+    // Fall through to the Tauri loader and then to the null fallback.
+  }
+
   try {
     const modules = await loadTauriModules();
     const version = await modules.app?.getVersion?.();
@@ -82,7 +118,31 @@ export async function resolveAppVersion() {
   }
 }
 
+export async function resolveCurrentDesktopSession(): Promise<DesktopSessionInfo | null> {
+  const desktopHostBridge = getDesktopHostBridge();
+  try {
+    const session = await desktopHostBridge?.session?.getCurrentSession?.();
+    if (session && typeof session.id === "string" && session.id.length > 0) {
+      return session;
+    }
+  } catch {
+    // Electron desktop session lookup is optional.
+  }
+
+  return null;
+}
+
 export async function openExternalUrlWithFallback(url: string) {
+  const desktopHostBridge = getDesktopHostBridge();
+  try {
+    const openResult = await desktopHostBridge?.shell?.openExternalUrl?.(url);
+    if (desktopHostBridge?.shell?.openExternalUrl) {
+      return openResult !== false;
+    }
+  } catch {
+    // Fall through to the Tauri loader and browser fallback.
+  }
+
   try {
     const modules = await loadTauriModules();
     if (modules.opener?.openUrl) {
@@ -98,6 +158,20 @@ export async function openExternalUrlWithFallback(url: string) {
   }
 
   return window.open(url, "_blank", "noopener,noreferrer") !== null;
+}
+
+export async function showDesktopNotification(input: DesktopNotificationInput) {
+  const desktopHostBridge = getDesktopHostBridge();
+  try {
+    const showResult = await desktopHostBridge?.notifications?.show?.(input);
+    if (desktopHostBridge?.notifications?.show) {
+      return showResult !== false;
+    }
+  } catch {
+    // Notification support is optional in browser and Tauri fallbacks.
+  }
+
+  return false;
 }
 
 export function __setTauriModuleLoaderForTests(loader: TauriModuleLoader) {
