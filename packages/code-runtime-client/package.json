@@ -106,5 +106,8 @@
   },
   "dependencies": {
     "@ku0/code-runtime-host-contract": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.0"
   }
 }
