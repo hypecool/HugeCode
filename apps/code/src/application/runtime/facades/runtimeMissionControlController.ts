@@ -2,8 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWorkspaceRuntimeAgentControl } from "../ports/runtimeAgentControl";
 import { readRuntimeErrorCode, readRuntimeErrorMessage } from "../ports/runtimeErrorClassifier";
 import type { RuntimeAgentTaskSummary } from "../types/webMcpBridge";
-import { buildAgentTaskMissionBrief } from "./runtimeMissionDraftFacade";
 import { listRunExecutionProfiles } from "./runtimeMissionControlFacade";
+import {
+  buildRuntimeMissionLaunchPrepareRequest,
+  useRuntimeMissionLaunchPreview,
+} from "./runtimeMissionLaunchPreparation";
 import { buildWorkspaceRuntimeMissionControlProjection } from "./runtimeWorkspaceMissionControlProjection";
 import { useRuntimeWorkspaceLaunchDefaults } from "./runtimeWorkspaceLaunchDefaultsFacade";
 import {
@@ -104,6 +107,17 @@ export function useWorkspaceRuntimeMissionControlController(workspaceId: string)
   const selectedExecutionProfile = draft.selectedExecutionProfile;
   const selectedProviderRoute = missionControlProjection.routeSelection.selected;
   const providerRouteOptions = missionControlProjection.routeSelection.options;
+  const routedProvider =
+    draft.runtimeDraftProviderRoute === "auto" ? null : draft.runtimeDraftProviderRoute;
+  const runtimeLaunchPreparation = useRuntimeMissionLaunchPreview({
+    workspaceId,
+    draftTitle: draft.runtimeDraftTitle,
+    draftInstruction: draft.runtimeDraftInstruction,
+    selectedExecutionProfile,
+    repositoryLaunchDefaults,
+    runtimeSourceDraft: draft.runtimeSourceDraft,
+    routedProvider,
+  });
 
   const setRuntimeError = useCallback((value: string | null) => {
     setRuntimeActionError(value);
@@ -113,29 +127,39 @@ export function useWorkspaceRuntimeMissionControlController(workspaceId: string)
     if (draft.runtimeDraftInstruction.trim().length === 0) {
       return;
     }
-    const routedProvider =
-      draft.runtimeDraftProviderRoute === "auto" ? null : draft.runtimeDraftProviderRoute;
+    const launchRequest = buildRuntimeMissionLaunchPrepareRequest({
+      workspaceId,
+      draftTitle: draft.runtimeDraftTitle,
+      draftInstruction: draft.runtimeDraftInstruction,
+      selectedExecutionProfile,
+      repositoryLaunchDefaults,
+      runtimeSourceDraft: draft.runtimeSourceDraft,
+      routedProvider,
+    });
+    if (!launchRequest) {
+      return;
+    }
     setRuntimeActionLoading(true);
     try {
       await runtimeControl.startTask({
-        workspaceId,
-        title: draft.runtimeDraftTitle.trim().length > 0 ? draft.runtimeDraftTitle.trim() : null,
-        validationPresetId:
-          draft.runtimeSourceDraft?.validationPresetId ??
-          selectedExecutionProfile.validationPresetId,
-        accessMode: draft.runtimeSourceDraft?.accessMode ?? selectedExecutionProfile.accessMode,
-        executionMode:
-          selectedExecutionProfile.executionMode === "remote_sandbox" ? "distributed" : "single",
-        provider: routedProvider,
-        instruction: draft.runtimeDraftInstruction.trim(),
+        workspaceId: launchRequest.workspaceId,
+        title: launchRequest.title ?? null,
+        taskSource: launchRequest.taskSource ?? null,
+        executionProfileId: launchRequest.executionProfileId ?? null,
+        reviewProfileId: launchRequest.reviewProfileId ?? null,
+        validationPresetId: launchRequest.validationPresetId ?? null,
+        accessMode: launchRequest.accessMode,
+        executionMode: launchRequest.executionMode,
+        provider: launchRequest.provider ?? null,
+        ...(launchRequest.preferredBackendIds
+          ? { preferredBackendIds: launchRequest.preferredBackendIds }
+          : {}),
+        missionBrief: launchRequest.missionBrief ?? null,
+        ...(launchRequest.relaunchContext !== undefined && launchRequest.relaunchContext !== null
+          ? { relaunchContext: launchRequest.relaunchContext }
+          : {}),
+        instruction: launchRequest.steps[0]?.input ?? draft.runtimeDraftInstruction.trim(),
         stepKind: "read",
-        missionBrief: buildAgentTaskMissionBrief({
-          objective:
-            draft.runtimeDraftTitle.trim().length > 0
-              ? draft.runtimeDraftTitle.trim()
-              : draft.runtimeDraftInstruction.trim(),
-          accessMode: draft.runtimeSourceDraft?.accessMode ?? selectedExecutionProfile.accessMode,
-        }),
       });
       draft.resetRuntimeDraftState();
       setRuntimeError(null);
@@ -152,10 +176,12 @@ export function useWorkspaceRuntimeMissionControlController(workspaceId: string)
     draft,
     runtimeControl,
     selectedExecutionProfile,
+    repositoryLaunchDefaults,
     selectedProviderRoute,
     snapshot,
     workspaceId,
     setRuntimeError,
+    routedProvider,
   ]);
 
   const interruptRuntimeTaskById = useCallback(
@@ -381,6 +407,9 @@ export function useWorkspaceRuntimeMissionControlController(workspaceId: string)
     repositoryExecutionContract,
     repositoryExecutionContractError,
     repositoryLaunchDefaults,
+    runtimeLaunchPreparation: runtimeLaunchPreparation.preparation,
+    runtimeLaunchPreparationError: runtimeLaunchPreparation.error,
+    runtimeLaunchPreparationLoading: runtimeLaunchPreparation.loading,
     resumeRecoverableTasks,
     runtimeDraftInstruction: draft.runtimeDraftInstruction,
     setRuntimeDraftInstruction: draft.setRuntimeDraftInstruction,
