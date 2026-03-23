@@ -25,6 +25,7 @@ import { WorkspaceHomeAgentRuntimeOrchestration } from "./WorkspaceHomeAgentRunt
 const startRuntimeJobWithRemoteSelectionMock = vi.hoisted(() => vi.fn());
 const readRepositoryExecutionContractMock = vi.hoisted(() => vi.fn());
 const startAgentTask = vi.hoisted(() => vi.fn());
+const prepareRuntimeRunV2Mock = vi.hoisted(() => vi.fn());
 
 vi.mock("../../../application/runtime/ports/runtimeUpdatedEvents", () => ({
   subscribeScopedRuntimeUpdatedEvents: vi.fn(),
@@ -61,6 +62,7 @@ vi.mock("../../../application/runtime/ports/tauriRuntimeJobs", () => ({
   getRuntimeJob: vi.fn(),
   interveneRuntimeJob: vi.fn(),
   listRuntimeJobs: vi.fn(),
+  prepareRuntimeRunV2: prepareRuntimeRunV2Mock,
   resumeRuntimeJob: vi.fn(),
 }));
 
@@ -158,6 +160,7 @@ beforeEach(() => {
     };
   });
   startRuntimeJobWithRemoteSelectionMock.mockResolvedValue({});
+  prepareRuntimeRunV2Mock.mockResolvedValue(createRuntimeLaunchPreparationFixture());
   vi.mocked(getRuntimeCapabilitiesSummary).mockResolvedValue({
     mode: "tauri",
     methods: ["code_health"],
@@ -292,6 +295,91 @@ function buildRuntimeUpdatedEvent(
   };
 }
 
+function createRuntimeLaunchPreparationFixture() {
+  return {
+    preparedAt: 1_700_000_000_000,
+    runIntent: {
+      title: "Inspect runtime launch path",
+      objective: "Inspect runtime launch path",
+      summary: "Runtime clarified the mission and built a native execution plan.",
+      taskSource: {
+        kind: "manual" as const,
+        title: "Inspect runtime launch path",
+      },
+      accessMode: "on-request" as const,
+      executionMode: "single" as const,
+      executionProfileId: "balanced-delegate",
+      reviewProfileId: null,
+      validationPresetId: "standard",
+      preferredBackendIds: ["backend-policy-a"],
+      requiredCapabilities: [],
+      riskLevel: "medium" as const,
+      clarified: true,
+      missingContext: [],
+    },
+    contextWorkingSet: {
+      summary: "Hot repo context plus validation defaults are loaded.",
+      workspaceRoot: "/workspaces/HugeCode",
+      layers: [
+        {
+          tier: "hot" as const,
+          summary: "Immediate launch context",
+          entries: [
+            {
+              id: "workspace",
+              label: "HugeCode workspace",
+              kind: "workspace" as const,
+              detail: "Current repository root",
+              source: "runtime",
+            },
+          ],
+        },
+      ],
+    },
+    executionGraph: {
+      graphId: "graph-1",
+      summary: "Read, validate, then review.",
+      nodes: [
+        {
+          id: "node-read",
+          label: "Inspect runtime boundary",
+          kind: "read" as const,
+          status: "planned" as const,
+          capability: "code",
+          dependsOn: [],
+          parallelSafe: true,
+          requiresApproval: false,
+        },
+        {
+          id: "node-validate",
+          label: "Run validation",
+          kind: "validate" as const,
+          status: "planned" as const,
+          capability: "validation",
+          dependsOn: ["node-read"],
+          parallelSafe: false,
+          requiresApproval: false,
+        },
+      ],
+    },
+    approvalBatches: [
+      {
+        id: "batch-1",
+        summary: "Workspace-safe reads",
+        riskLevel: "low" as const,
+        actionCount: 2,
+        stepIds: ["node-read"],
+      },
+    ],
+    validationPlan: {
+      required: true,
+      summary: "Run the standard validation lane before review.",
+      commands: ["pnpm validate:fast"],
+    },
+    reviewFocus: ["runtime truth", "approval batching"],
+  };
+}
+
 function createRuntimeKernelValue(): RuntimeKernel {
   const runtimeClientMode = "runtime-gateway-web" as const;
   const workspaceClientRuntimeMode = "connected" as const;
@@ -421,6 +509,36 @@ describe("WorkspaceHomeAgentRuntimeOrchestration", () => {
       expect(screen.getByRole("heading", { name: "Continuity readiness" })).toBeTruthy();
       expect(screen.getByRole("heading", { name: "Approval pressure" })).toBeTruthy();
       expect(screen.getByRole("heading", { name: "Run list" })).toBeTruthy();
+    });
+  });
+
+  it("shows runtime-owned launch preparation from runtime kernel v2", async () => {
+    mockRuntimeTasks([]);
+
+    render(<WorkspaceHomeAgentRuntimeOrchestration workspaceId="ws-approval" />);
+
+    fireEvent.change(screen.getByPlaceholderText("Mission brief for agent"), {
+      target: { value: "Inspect runtime launch path" },
+    });
+
+    await waitFor(() => {
+      expect(prepareRuntimeRunV2Mock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          workspaceId: "ws-approval",
+          executionProfileId: "balanced-delegate",
+          validationPresetId: "standard",
+          accessMode: "on-request",
+          steps: [{ kind: "read", input: "Inspect runtime launch path" }],
+        })
+      );
+      expect(screen.getByText("Runtime launch plan")).toBeTruthy();
+      expect(
+        screen.getByText("Runtime clarified the mission and built a native execution plan.")
+      ).toBeTruthy();
+      expect(
+        screen.getByText(/Validation: Run the standard validation lane before review\./)
+      ).toBeTruthy();
+      expect(screen.getByText(/Review focus: runtime truth \| approval batching/)).toBeTruthy();
     });
   });
 
@@ -1903,6 +2021,11 @@ describe("WorkspaceHomeAgentRuntimeOrchestration", () => {
       expect(startRuntimeJobWithRemoteSelectionMock).toHaveBeenCalledWith({
         workspaceId: "ws-approval",
         title: null,
+        taskSource: {
+          kind: "manual",
+          title: "Inspect src/runtime and summarize.",
+        },
+        executionProfileId: "balanced-delegate",
         validationPresetId: "standard",
         accessMode: "on-request",
         executionMode: "single",

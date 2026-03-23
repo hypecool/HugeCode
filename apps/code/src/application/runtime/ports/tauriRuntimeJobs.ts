@@ -16,11 +16,15 @@ export type {
   KernelJobResumeRequestV3,
   KernelJobStartRequestV3,
   KernelJobSubscribeRequestV3,
+  RuntimeRunPrepareV2Request,
+  RuntimeRunPrepareV2Response,
   RuntimeRunCancelAck,
   RuntimeRunCancelRequest,
   RuntimeRunCheckpointApprovalAck,
   RuntimeRunCheckpointApprovalRequest,
   RuntimeRunResumeAck,
+  RuntimeReviewGetV2Request,
+  RuntimeReviewGetV2Response,
 } from "./runtimeClient";
 export type {
   RuntimeJobInterventionAck,
@@ -28,10 +32,12 @@ export type {
 } from "../../../services/tauriRuntimeJobsBridge";
 export {
   cancelRuntimeJob,
+  getRuntimeReviewV2,
   submitRuntimeJobApprovalDecision,
   getRuntimeJob,
   interveneRuntimeJob,
   listRuntimeJobs,
+  prepareRuntimeRunV2,
   registerRuntimeJobCallback,
   removeRuntimeJobCallback,
   resumeRuntimeJob,
